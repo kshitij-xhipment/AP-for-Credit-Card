@@ -664,109 +664,212 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif;
 
 <!-- ══ SCREEN D: PAYMENT ══ -->
 <div id="screenPayment" class="pscreen">
-  <div class="topbar">
-    <span class="logo">XAP</span>
-    <span class="sep">|</span>
-    <span class="pg-title">INV-CC-00422</span>
-    <span style="font-size:12px;color:var(--t2)">Hind Terminals Pvt Ltd</span>
-    <span style="font-size:11px;font-weight:500;padding:2px 8px;border-radius:100px;background:var(--ok-bg);color:var(--ok-t)" id="payNavBadge">Approved</span>
-    <span style="font-size:11px;color:var(--t3)">0-7d</span>
-    <div class="ml" style="display:flex;gap:8px">
-      <button class="btn-zoho"><svg class="icosvg" viewBox="0 0 24 24"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>Zoho Bill</button>
+
+  <!-- TOPBAR -->
+  <div style="height:44px;background:#fff;border-bottom:1px solid #E2E5ED;display:flex;align-items:center;padding:0 16px;gap:10px;box-shadow:0 1px 3px rgba(26,43,74,.07);flex-shrink:0">
+    <span style="font-size:15px;font-weight:700;color:#F26522;letter-spacing:-.3px">XAP</span>
+    <span style="color:#E2E5ED;font-size:18px">|</span>
+    <span style="font-size:13px;font-weight:600;color:#1A2B4A">INV-CC-00422</span>
+    <span style="font-size:12px;color:#6B7A99">Hind Terminals Pvt Ltd</span>
+    <span id="payNavBadge" style="font-size:11px;font-weight:500;padding:2px 8px;border-radius:100px;background:#EAF7EE;color:#1E7A3E">Approved</span>
+    <span style="font-size:11px;color:#9BA6BC">0-7d</span>
+    <div style="margin-left:auto">
+      <button style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:6px;font-size:11px;font-weight:500;font-family:inherit;cursor:pointer;background:#FEF0E9;color:#F26522;border:1px solid #F26522">
+        <svg style="width:13px;height:13px;stroke:#F26522;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round" viewBox="0 0 24 24"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
+        Zoho Bill
+      </button>
     </div>
   </div>
-  <div class="vstep-bar">
-    <div class="vstep done"><span class="vsdot">&#10003;</span>Add New</div><span class="vsarr">&#8250;</span>
-    <div class="vstep done"><span class="vsdot">&#10003;</span>Create Invoice</div><span class="vsarr">&#8250;</span>
-    <div class="vstep done"><span class="vsdot">&#10003;</span>Validate</div><span class="vsarr">&#8250;</span>
-    <div class="vstep done"><span class="vsdot">&#10003;</span>Approval</div><span class="vsarr">&#8250;</span>
-    <div class="vstep active"><span class="vsdot">5</span>Payment</div>
+
+  <!-- STEPPER -->
+  <div style="display:flex;align-items:center;background:#fff;border-bottom:1px solid #E2E5ED;padding:0 20px;height:36px;flex-shrink:0">
+    <div style="font-size:12px;color:#1E7A3E;padding:0 14px;height:36px;display:flex;align-items:center;gap:6px;border-bottom:2px solid transparent">
+      <span style="width:18px;height:18px;border-radius:50%;background:#EAF7EE;color:#1E7A3E;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:600">&#10003;</span>Add New
+    </div>
+    <span style="color:#E2E5ED;font-size:16px;padding:0 2px">&#8250;</span>
+    <div style="font-size:12px;color:#1E7A3E;padding:0 14px;height:36px;display:flex;align-items:center;gap:6px;border-bottom:2px solid transparent">
+      <span style="width:18px;height:18px;border-radius:50%;background:#EAF7EE;color:#1E7A3E;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:600">&#10003;</span>Create Invoice
+    </div>
+    <span style="color:#E2E5ED;font-size:16px;padding:0 2px">&#8250;</span>
+    <div style="font-size:12px;color:#1E7A3E;padding:0 14px;height:36px;display:flex;align-items:center;gap:6px;border-bottom:2px solid transparent">
+      <span style="width:18px;height:18px;border-radius:50%;background:#EAF7EE;color:#1E7A3E;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:600">&#10003;</span>Validate
+    </div>
+    <span style="color:#E2E5ED;font-size:16px;padding:0 2px">&#8250;</span>
+    <div style="font-size:12px;color:#1E7A3E;padding:0 14px;height:36px;display:flex;align-items:center;gap:6px;border-bottom:2px solid transparent">
+      <span style="width:18px;height:18px;border-radius:50%;background:#EAF7EE;color:#1E7A3E;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:600">&#10003;</span>Approval
+    </div>
+    <span style="color:#E2E5ED;font-size:16px;padding:0 2px">&#8250;</span>
+    <div style="font-size:12px;color:#F26522;font-weight:500;padding:0 14px;height:36px;display:flex;align-items:center;gap:6px;border-bottom:2px solid #F26522">
+      <span style="width:18px;height:18px;border-radius:50%;background:#F26522;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:600">5</span>Payment
+    </div>
   </div>
-  <div class="pbody">
-    <div class="paid-banner" id="paidBanner">
-      <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-      <span class="paid-banner-txt" id="paidBannerTxt">Invoice Paid</span>
-    </div>
-    <div class="pcard">
-      <div class="pcard-head">
-        <span class="pcard-title">Invoice Summary</span>
-        <span class="paid-dot" id="paidDot">Paid</span>
+
+  <!-- SCROLLABLE BODY -->
+  <div style="flex:1;overflow-y:auto;background:#F5F6FA">
+    <div style="max-width:760px;margin:0 auto;padding:24px 24px 40px;display:flex;flex-direction:column;gap:16px">
+
+      <!-- PAID BANNER -->
+      <div id="paidBanner" style="background:#EAF7EE;border:1px solid #6FCF97;border-radius:8px;padding:10px 16px;display:flex;align-items:center;gap:10px;opacity:0;transition:opacity .5s">
+        <svg style="width:16px;height:16px;stroke:#1E7A3E;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        <span id="paidBannerTxt" style="font-size:12px;color:#1E7A3E;font-weight:500">Invoice Paid</span>
       </div>
-      <div class="psum-row"><span class="psum-k">Invoice Number</span><span class="psum-v">INV-CC-00422</span></div>
-      <div class="psum-row"><span class="psum-k">Vendor</span><span class="psum-v">Hind Terminals Pvt Ltd</span></div>
-      <div class="psum-row"><span class="psum-k">Payment Entity</span><span class="psum-v">FIRST-SHIPMENT</span></div>
-      <div class="psum-row"><span class="psum-k">Gross Amount</span><span class="psum-v big">USD 2,400.00</span></div>
-      <div class="psum-row"><span class="psum-k">Invoice Type</span><span class="psum-v">Non-tax</span></div>
-      <div class="psum-row"><span class="psum-k">Due Date</span><span class="psum-v" id="pDueDate"></span></div>
-      <div class="psum-row"><span class="psum-k">Mapped QIDs</span><span class="psum-v link">XQFCL062621269</span></div>
-      <div class="psum-row" style="align-items:flex-start"><span class="psum-k">TC Remark</span><span class="psum-v" style="font-size:11px;color:var(--t2);max-width:360px;text-align:right;line-height:1.5">Credit card payment recorded. Detention fee for container at Hind Terminals beyond free days.</span></div>
-    </div>
-    <div class="pcard">
-      <div class="pcard-head"><span class="pcard-title">Validation</span></div>
-      <table class="pval-tbl">
-        <thead><tr><th>QID</th><th>Charge</th><th>Leg</th><th style="text-align:right">Allocated</th></tr></thead>
-        <tbody>
-          <tr>
-            <td style="font-size:11px;color:var(--tag-t);font-weight:500">XQFCL062621269</td>
-            <td style="font-weight:500;color:var(--orange)">Detention Fee</td>
-            <td style="color:var(--t2)">Destination</td>
-            <td style="text-align:right" class="pval-alloc">USD 2,400.00</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="pcard">
-      <div class="pcard-head"><span class="pcard-title">Payment Details</span></div>
-      <div class="webhook-banner" id="webhookBanner">
-        <svg viewBox="0 0 24 24"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
-        <span id="webhookTxt">Receiving Zoho Books webhook...</span>
-      </div>
-      <div class="pdet-grid g2" style="margin-top:4px">
-        <div>
-          <div class="pdet-lbl">UTR <span class="req">*</span></div>
-          <input class="pdet-inp" id="pUTR" placeholder="Awaiting webhook from Zoho Books" readonly>
+
+      <!-- INVOICE SUMMARY -->
+      <div style="background:#fff;border:1px solid #E2E5ED;border-radius:10px">
+        <div style="padding:13px 20px;border-bottom:1px solid #E2E5ED;display:flex;align-items:center;justify-content:space-between">
+          <span style="font-size:14px;font-weight:600;color:#1A2B4A">Invoice Summary</span>
+          <span id="paidDot" style="font-size:11px;font-weight:500;color:#1E7A3E;display:flex;align-items:center;gap:5px;opacity:0;transition:opacity .5s">
+            <span style="width:7px;height:7px;border-radius:50%;background:#1E7A3E;display:inline-block"></span>Paid
+          </span>
         </div>
-        <div>
-          <div class="pdet-lbl">Payment Date</div>
-          <input class="pdet-inp" id="pDate" placeholder="Awaiting webhook" readonly>
-        </div>
-      </div>
-      <div class="pdet-grid g3" style="padding-top:0">
-        <div>
-          <div class="pdet-lbl">Amount Paid <span class="req">*</span></div>
-          <div class="pcurr-wrap">
-            <select class="pcurr" id="pCurr"><option>USD</option><option>INR</option><option>EUR</option></select>
-            <input class="pdet-inp" id="pAmt" placeholder="Awaiting webhook" style="flex:1" readonly>
+        <div style="padding:0 20px">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #F4F5F8;font-size:13px">
+            <span style="color:#6B7A99">Invoice Number</span>
+            <span style="color:#1A2B4A;font-weight:600">INV-CC-00422</span>
           </div>
-        </div>
-        <div>
-          <div class="pdet-lbl">TDS Withheld</div>
-          <div class="pcurr-wrap">
-            <select class="pcurr"><option>USD</option><option>INR</option></select>
-            <input class="pdet-inp" id="pTDS" placeholder="Optional" style="flex:1" readonly>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #F4F5F8;font-size:13px">
+            <span style="color:#6B7A99">Vendor</span>
+            <span style="color:#1A2B4A;font-weight:500">Hind Terminals Pvt Ltd</span>
           </div>
-        </div>
-        <div>
-          <div class="pdet-lbl">Transfer Fees</div>
-          <div class="pcurr-wrap">
-            <select class="pcurr"><option>USD</option><option>INR</option></select>
-            <input class="pdet-inp" id="pFees" placeholder="Optional" style="flex:1" readonly>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #F4F5F8;font-size:13px">
+            <span style="color:#6B7A99">Payment Entity</span>
+            <span style="color:#1A2B4A;font-weight:500">FIRST-SHIPMENT</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #F4F5F8;font-size:13px">
+            <span style="color:#6B7A99">Gross Amount</span>
+            <span style="color:#1A2B4A;font-weight:700;font-size:14px">USD 2,400.00</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #F4F5F8;font-size:13px">
+            <span style="color:#6B7A99">Invoice Type</span>
+            <span style="color:#1A2B4A;font-weight:500">Non-tax</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #F4F5F8;font-size:13px">
+            <span style="color:#6B7A99">Due Date</span>
+            <span id="pDueDate" style="color:#1A2B4A;font-weight:500"></span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #F4F5F8;font-size:13px">
+            <span style="color:#6B7A99">Mapped QIDs</span>
+            <span style="color:#2952A3;font-weight:500;cursor:pointer">XQFCL062621269</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;padding:9px 0;font-size:13px">
+            <span style="color:#6B7A99;white-space:nowrap;padding-right:16px">TC Remark</span>
+            <span style="color:#6B7A99;text-align:right;line-height:1.6">Credit card payment recorded. Detention fee for container held at Hind Terminals beyond free days.</span>
           </div>
         </div>
       </div>
-    </div>
-    <div class="pcard">
-      <div class="pcard-head"><span class="pcard-title">Remarks</span></div>
-      <div style="padding:12px 14px">
-        <textarea class="premark-area" rows="3" id="pRemarks">Credit card payment recorded. Detention fee for container held at Hind Terminals beyond free days. QID: XQFCL062621269.</textarea>
+
+      <!-- VALIDATION -->
+      <div style="background:#fff;border:1px solid #E2E5ED;border-radius:10px">
+        <div style="padding:13px 20px;border-bottom:1px solid #E2E5ED">
+          <span style="font-size:14px;font-weight:600;color:#1A2B4A">Validation</span>
+        </div>
+        <div style="padding:0 20px">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:0;padding:8px 0;border-bottom:1px solid #F4F5F8">
+            <span style="font-size:10px;font-weight:500;color:#9BA6BC;text-transform:uppercase;letter-spacing:.4px">QID</span>
+            <span style="font-size:10px;font-weight:500;color:#9BA6BC;text-transform:uppercase;letter-spacing:.4px">CHARGE</span>
+            <span style="font-size:10px;font-weight:500;color:#9BA6BC;text-transform:uppercase;letter-spacing:.4px">LEG</span>
+            <span style="font-size:10px;font-weight:500;color:#9BA6BC;text-transform:uppercase;letter-spacing:.4px;text-align:right">ALLOCATED</span>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:0;padding:10px 0">
+            <span style="font-size:12px;color:#2952A3;font-weight:500">XQFCL062621269</span>
+            <span style="font-size:12px;color:#F26522;font-weight:500">Detention Fee</span>
+            <span style="font-size:12px;color:#6B7A99">Destination</span>
+            <span style="font-size:12px;color:#F26522;font-weight:600;text-align:right">USD 2,400.00</span>
+          </div>
+        </div>
       </div>
-      <div class="psave-bar">
-        <button class="psave-btn" onclick="handlePSave()">Save</button>
+
+      <!-- PAYMENT DETAILS -->
+      <div style="background:#fff;border:1px solid #E2E5ED;border-radius:10px">
+        <div style="padding:13px 20px;border-bottom:1px solid #E2E5ED">
+          <span style="font-size:14px;font-weight:600;color:#1A2B4A">Payment Details</span>
+        </div>
+
+        <!-- WEBHOOK BANNER -->
+        <div id="webhookBanner" style="margin:14px 20px 0;background:#EDF3FF;border:1px solid #93C5FD;border-radius:6px;padding:9px 12px;font-size:12px;color:#2952A3;font-weight:500;display:flex;align-items:center;gap:8px;opacity:0;transition:opacity .4s">
+          <svg id="webhookIco" style="width:13px;height:13px;stroke:#2952A3;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;animation:spin 1.2s linear infinite" viewBox="0 0 24 24"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
+          <span id="webhookTxt">Receiving Zoho Books webhook...</span>
+        </div>
+
+        <div style="padding:14px 20px">
+
+          <!-- ROW 1: UTR + Payment Date -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:14px">
+            <div>
+              <label style="display:block;font-size:12px;color:#6B7A99;font-weight:500;margin-bottom:5px">UTR <span style="color:#E24B4A">*</span></label>
+              <input id="pUTR" type="text" placeholder="Awaiting webhook from Zoho Books" readonly
+                style="display:block;width:100%;padding:8px 11px;border:1px solid #E2E5ED;border-radius:6px;font-size:13px;font-family:inherit;color:#1A2B4A;background:#fff;outline:none;box-sizing:border-box;transition:border-color .15s">
+            </div>
+            <div>
+              <label style="display:block;font-size:12px;color:#6B7A99;font-weight:500;margin-bottom:5px">Payment Date</label>
+              <input id="pDate" type="text" placeholder="Awaiting webhook" readonly
+                style="display:block;width:100%;padding:8px 11px;border:1px solid #E2E5ED;border-radius:6px;font-size:13px;font-family:inherit;color:#1A2B4A;background:#fff;outline:none;box-sizing:border-box;transition:border-color .15s">
+            </div>
+          </div>
+
+          <!-- ROW 2: Amount Paid + TDS Withheld + Additional Charges -->
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px">
+
+            <!-- Amount Paid -->
+            <div>
+              <label style="display:block;font-size:12px;color:#6B7A99;font-weight:500;margin-bottom:5px">Amount Paid <span style="color:#E24B4A">*</span></label>
+              <div style="display:flex;border:1px solid #E2E5ED;border-radius:6px;overflow:hidden;background:#fff;height:36px">
+                <select id="pCurr" onchange="calcAdditional()"
+                  style="height:36px;padding:0 6px;border:none;border-right:1px solid #E2E5ED;font-size:12px;font-family:inherit;color:#6B7A99;background:#F8F9FC;outline:none;cursor:pointer;flex-shrink:0;min-width:52px;-webkit-appearance:auto;appearance:auto">
+                  <option>USD</option><option>INR</option><option>EUR</option>
+                </select>
+                <input id="pAmt" type="text" placeholder="0.00" readonly oninput="calcAdditional()"
+                  style="flex:1;border:none;outline:none;padding:0 10px;font-size:13px;font-family:inherit;color:#1A2B4A;background:transparent;min-width:0;height:36px;box-sizing:border-box">
+              </div>
+            </div>
+
+            <!-- TDS Withheld -->
+            <div>
+              <label style="display:block;font-size:12px;color:#6B7A99;font-weight:500;margin-bottom:5px">TDS Withheld</label>
+              <div style="display:flex;border:1px solid #E2E5ED;border-radius:6px;overflow:hidden;background:#fff;height:36px">
+                <select style="height:36px;padding:0 6px;border:none;border-right:1px solid #E2E5ED;font-size:12px;font-family:inherit;color:#6B7A99;background:#F8F9FC;outline:none;cursor:pointer;flex-shrink:0;min-width:52px;-webkit-appearance:auto;appearance:auto">
+                  <option>USD</option><option>INR</option>
+                </select>
+                <input id="pTDS" type="text" placeholder="Optional"
+                  style="flex:1;border:none;outline:none;padding:0 10px;font-size:13px;font-family:inherit;color:#1A2B4A;background:transparent;min-width:0;height:36px;box-sizing:border-box">
+              </div>
+            </div>
+
+            <!-- Additional Charges -->
+            <div>
+              <label style="display:block;font-size:12px;color:#6B7A99;font-weight:500;margin-bottom:5px">Additional Charges</label>
+              <div style="display:flex;border:1px solid #E2E5ED;border-radius:6px;overflow:hidden;background:#F8F9FC;height:36px">
+                <select id="pAddCurr"
+                  style="height:36px;padding:0 6px;border:none;border-right:1px solid #E2E5ED;font-size:12px;font-family:inherit;color:#6B7A99;background:#F8F9FC;outline:none;flex-shrink:0;min-width:52px;-webkit-appearance:auto;appearance:auto">
+                  <option>USD</option><option>INR</option>
+                </select>
+                <input id="pAdditional" type="text" placeholder="Auto-calculated" readonly
+                  style="flex:1;border:none;outline:none;padding:0 10px;font-size:13px;font-family:inherit;color:#9BA6BC;background:transparent;min-width:0;height:36px;box-sizing:border-box">
+              </div>
+              <div style="font-size:11px;color:#9BA6BC;margin-top:4px">Amount Paid minus Invoice Amount</div>
+            </div>
+
+          </div>
+        </div>
       </div>
+
+      <!-- REMARKS -->
+      <div style="background:#fff;border:1px solid #E2E5ED;border-radius:10px">
+        <div style="padding:13px 20px;border-bottom:1px solid #E2E5ED;display:flex;align-items:center;justify-content:space-between">
+          <span style="font-size:14px;font-weight:600;color:#1A2B4A">Remarks</span>
+          <button onclick="handlePSave()"
+            style="padding:6px 16px;background:#F26522;color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit">Save</button>
+        </div>
+        <div style="padding:14px 20px">
+          <textarea id="pRemarks"
+            style="width:100%;padding:10px 12px;border:1px solid #E2E5ED;border-radius:6px;font-size:13px;font-family:inherit;color:#6B7A99;resize:vertical;outline:none;line-height:1.6;box-sizing:border-box;min-height:90px"
+            >Credit card payment recorded. Detention fee for container held at Hind Terminals beyond free days. QID: XQFCL062621269.</textarea>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
-
 <!-- ══════════════════════════════════
      MODAL 1: ADD NEW CHOICE
 ══════════════════════════════════ -->
@@ -1159,42 +1262,83 @@ function showPayScreen(){
   var d=new Date();
   document.getElementById('pDueDate').textContent=String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();
   document.getElementById('payNavBadge').textContent='Approved';
-  /* Simulate Zoho webhook arriving after 2 seconds */
+  /* Reset state */
+  document.getElementById('paidBanner').style.opacity='0';
+  document.getElementById('paidDot').style.opacity='0';
+  document.getElementById('pUTR').value='';document.getElementById('pDate').value='';
+  document.getElementById('pAmt').value='';document.getElementById('pAdditional').value='';
+  ['pUTR','pDate','pAmt'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el){el.style.borderColor='';el.style.background='';}
+  });
+  /* Show webhook banner then fire */
   var wb=document.getElementById('webhookBanner');
-  wb.classList.add('show');
-  setTimeout(function(){simulateWebhook();},2200);
+  wb.style.opacity='1';
+  setTimeout(function(){simulateWebhook();},2000);
 }
 
 function simulateWebhook(){
   var wb=document.getElementById('webhookBanner');
   var txt=document.getElementById('webhookTxt');
-  /* Flash each field as it fills */
+  var ico=document.getElementById('webhookIco');
+  wb.style.opacity='1';
   function fillField(el,val,cb){
-    el.classList.add('webhook');
+    el.style.borderColor='#6FCF97';el.style.background='#F0FBF4';
     var i=0;
-    function step(){if(i<=val.length){el.value=val.slice(0,i);i++;setTimeout(step,45);}else{if(cb)setTimeout(cb,200);}}
+    function step(){if(i<=val.length){el.value=val.slice(0,i);i++;setTimeout(step,45);}else{if(cb)setTimeout(cb,240);}}
     step();
   }
   fillField(document.getElementById('pUTR'),'016OVZZZB4ZD2UG',function(){
     var d=new Date();
-    fillField(document.getElementById('pDate'),String(d.getMonth()+1).padStart(2,'0')+'/'+String(d.getDate()).padStart(2,'0')+'/'+d.getFullYear(),function(){
+    var ds=String(d.getMonth()+1).padStart(2,'0')+'/'+String(d.getDate()).padStart(2,'0')+'/'+d.getFullYear();
+    fillField(document.getElementById('pDate'),ds,function(){
       fillField(document.getElementById('pAmt'),'2400.00',function(){
-        wb.classList.add('done');
+        calcAdditional();
+        if(ico){ico.style.animation='none';ico.setAttribute('viewBox','0 0 24 24');ico.innerHTML='<polyline points="20 6 9 17 4 12"/>';ico.style.stroke='#1E7A3E';}
+        wb.style.background='#EAF7EE';wb.style.borderColor='#6FCF97';
+        txt.style.color='#1E7A3E';
         txt.textContent='Zoho Books webhook received. Payment details filled automatically.';
-        document.getElementById('paidBanner').classList.add('show');
-        document.getElementById('paidDot').classList.add('show');
+        var paidBanner=document.getElementById('paidBanner');
+        var paidDot=document.getElementById('paidDot');
+        paidBanner.style.opacity='1';
+        paidDot.style.opacity='1';
         document.getElementById('payNavBadge').textContent='Paid';
-        document.getElementById('payNavBadge').style.background='var(--ok-bg)';
-        document.getElementById('payNavBadge').style.color='var(--ok-t)';
+        document.getElementById('payNavBadge').style.background='#EAF7EE';
+        document.getElementById('payNavBadge').style.color='#1E7A3E';
         var d2=new Date();
-        var ds=String(d2.getMonth()+1).padStart(2,'0')+'/'+String(d2.getDate()).padStart(2,'0')+'/'+d2.getFullYear();
-        document.getElementById('paidBannerTxt').textContent='Invoice Paid | UTR: 016OVZZZB4ZD2UG | Amount: USD 2,400.00 | Paid: '+ds;
+        var ds2=String(d2.getMonth()+1).padStart(2,'0')+'/'+String(d2.getDate()).padStart(2,'0')+'/'+d2.getFullYear();
+        document.getElementById('paidBannerTxt').textContent='Invoice Paid | UTR: 016OVZZZB4ZD2UG | Amount: USD 2,400.00 | Paid: '+ds2;
         showToast('Webhook received from Zoho Books. Invoice marked as Paid.');
       });
     });
   });
 }
 
+function calcAdditional(){
+  var amt = parseFloat(document.getElementById('pAmt').value) || 0;
+  var invoice = 2400;
+  var diff = amt - invoice;
+  var addEl = document.getElementById('pAdditional');
+  var addCurr = document.getElementById('pCurr') ? document.getElementById('pCurr').value : 'USD';
+  document.getElementById('pAddCurr').value = addCurr;
+  if(amt === 0){
+    addEl.value = '';
+    addEl.placeholder = 'Auto-calculated';
+    addEl.style.color = 'var(--t3)';
+  } else if(diff > 0){
+    addEl.value = diff.toFixed(2);
+    addEl.style.color = '#E24B4A';
+    addEl.parentElement.style.borderColor = '#FECACA';
+    addEl.parentElement.parentElement.querySelector('.pdet-lbl, div') && void 0;
+  } else if(diff === 0){
+    addEl.value = '0.00';
+    addEl.style.color = 'var(--ok-t)';
+    addEl.parentElement.style.borderColor = 'var(--ok-b)';
+  } else {
+    addEl.value = diff.toFixed(2);
+    addEl.style.color = 'var(--t2)';
+  }
+}
 function handlePSave(){showToast('Payment details saved.');}
 
 /* ── SCREEN TRANSITIONS ── */
