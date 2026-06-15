@@ -315,6 +315,88 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif;
 .webhook-banner.done svg{animation:none;stroke:var(--ok-t)}
 .webhook-banner.done{background:var(--ok-bg);border-color:var(--ok-b);color:var(--ok-t)}
 
+/* ══ REVIEW QUEUE MODAL ══ */
+.rq-overlay{position:fixed;inset:0;background:rgba(26,43,74,.38);z-index:100;display:none;align-items:center;justify-content:center;padding:20px}
+.rq-overlay.open{display:flex}
+.rq-modal{background:var(--white);border-radius:var(--rl);width:1240px;max-width:96vw;display:flex;flex-direction:column;height:calc(100vh - 64px);animation:rqIn .18s ease}
+@keyframes rqIn{from{transform:translateY(8px);opacity:0}to{transform:translateY(0);opacity:1}}
+.rq-head{display:flex;align-items:center;gap:10px;padding:14px 20px;border-bottom:1px solid var(--border);flex-shrink:0}
+.rq-head-ico{width:30px;height:30px;border-radius:50%;background:var(--ok-bg);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.rq-head-ico svg{width:14px;height:14px;stroke:var(--ok-t);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.rq-title{font-size:14px;font-weight:600;color:var(--t1)}
+.rq-sub{font-size:11px;color:var(--t3);margin-top:1px}
+.rq-close{background:none;border:none;cursor:pointer;color:var(--t3);font-size:22px;line-height:1;padding:0 4px;margin-left:auto}
+.rq-close:hover{color:var(--t1)}
+.pg-tabs{display:flex;align-items:center;padding:0 20px;border-bottom:1px solid var(--border);background:var(--white);flex-shrink:0}
+.pg-tab{padding:10px 16px;font-size:13px;font-weight:500;color:var(--t2);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;display:inline-flex;align-items:center;gap:7px}
+.pg-tab.on{color:var(--orange);border-bottom-color:var(--orange)}
+.pg-tab:hover:not(.on){color:var(--t1)}
+.pg-bubble{min-width:18px;height:18px;border-radius:100px;font-size:10px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;padding:0 5px}
+.pb-val{background:#FFF4E0;color:#B45309}
+.pb-app{background:var(--ok-bg);color:var(--ok-t)}
+.rq-sub-tabs{display:flex;align-items:center;gap:8px;padding:10px 20px;border-bottom:1px solid var(--border);background:var(--bg);flex-shrink:0}
+.rq-sub-tab{padding:5px 14px;font-size:12px;font-weight:500;border-radius:100px;cursor:pointer;border:1px solid var(--border);color:var(--t2);background:var(--white);transition:all .15s;display:inline-flex;align-items:center;gap:6px}
+.rq-sub-tab.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.rq-sub-tab:hover:not(.on){background:var(--border)}
+.st-bub{min-width:16px;height:16px;border-radius:100px;font-size:10px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;padding:0 4px}
+.stb-bank{background:#D4E0FF;color:#1A2B4A}
+.stb-cc{background:var(--orange-lt);color:var(--orange)}
+.rq-sub-tab.on .stb-bank,.rq-sub-tab.on .stb-cc{background:rgba(255,255,255,.25);color:#fff}
+.rq-body{overflow-y:auto;flex:1}
+.v-col-head{display:grid;grid-template-columns:1fr 200px 260px 68px;padding:7px 20px;border-bottom:1px solid var(--border);background:var(--bg)}
+.v-col-head span{font-size:10px;font-weight:500;color:var(--t3);text-transform:uppercase;letter-spacing:.4px}
+.rq-vend-grp{border-bottom:1px solid var(--border)}
+.rq-vend-row{display:grid;grid-template-columns:1fr 200px 260px 68px;padding:11px 20px;align-items:center;background:var(--white);cursor:pointer;transition:background .1s}
+.rq-vend-row:hover{background:#fafbfd}
+.rq-vend-name{font-size:13px;font-weight:600;color:var(--t1)}
+.rq-vend-ct{font-size:11px;color:var(--t3);margin-top:2px}
+.rq-vend-amt{font-size:13px;font-weight:500;color:var(--t1)}
+.rq-exp{font-size:16px;color:var(--t3);background:none;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .2s;width:28px;height:28px}
+.rq-exp.open{transform:rotate(180deg)}
+.rq-inv-det{display:none;background:#FFFBF0;border-top:1px solid #FAC775}
+.rq-inv-det.open{display:block}
+.rq-inv-grid{display:grid;grid-template-columns:1fr 200px 260px 68px;padding:12px 20px;align-items:flex-start}
+.rq-inv-id{color:var(--orange);font-weight:600;font-size:12px;cursor:pointer}
+.rq-inv-meta{font-size:11px;color:var(--t3);margin-top:2px}
+.rq-inv-rmk{font-size:11px;color:var(--t2);line-height:1.6;white-space:pre-line;margin-top:8px;max-width:400px}
+.rq-acc-lbl{font-size:10px;color:var(--t3);font-weight:500;min-width:64px}
+.rq-acc-val{font-size:12px;color:var(--t1);font-weight:500}
+.rq-acc-nil{font-size:12px;color:var(--t3)}
+.rq-qid-head{font-size:11px;color:var(--tag-t);font-weight:500;margin:6px 0 2px}
+.rq-qid-ref{color:var(--orange);font-size:11px;font-weight:500}
+.rq-qid-sub{color:var(--t2);font-size:11px}
+.rq-act-col{display:flex;flex-direction:column;gap:4px;align-items:center;padding-top:2px}
+.rq-act-btn{width:26px;height:26px;border-radius:6px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0}
+.rq-ok{background:var(--ok-bg);color:var(--ok-t)}.rq-ok:hover{background:#c5f0d5}
+.rq-no{background:#FEF0F0;color:#E24B4A}.rq-no:hover{background:#fdd}
+.rq-done-ok{background:var(--ok-t);color:#fff;pointer-events:none}
+.rq-done-no{background:#E24B4A;color:#fff;pointer-events:none}
+.appr-tbl{width:100%;border-collapse:collapse;font-size:12px}
+.appr-tbl th{font-size:10px;font-weight:500;color:var(--t3);text-align:left;padding:8px 14px;border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:.4px;white-space:nowrap;background:var(--bg);position:sticky;top:0;z-index:1}
+.appr-tbl td{padding:8px 14px;border-bottom:1px solid var(--border);vertical-align:top}
+.appr-tbl tr:hover td{background:#fafbfd}
+.appr-grp-hd td{background:var(--lock-bg);font-weight:600;font-size:12px;color:var(--t1);padding:8px 14px}
+.z-blk{font-size:11px}
+.z-lnk{color:var(--tag-t);font-weight:500;display:inline-flex;align-items:center;gap:4px;cursor:pointer;margin-bottom:5px}
+.z-row{display:flex;justify-content:space-between;gap:12px;padding:1px 0;font-size:11px;color:var(--t2)}
+.z-total{color:var(--t1);font-weight:600;border-top:1px solid var(--border);margin-top:4px;padding-top:4px}
+.z-tax{color:var(--ok-t)}.z-round{color:#E24B4A}
+.appr-chk{width:14px;height:14px;accent-color:var(--orange);cursor:pointer}
+.sfp-bar{padding:12px 20px;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px;background:var(--white);flex-shrink:0}
+.sfp-btn{padding:7px 18px;background:var(--orange);color:#fff;border:none;border-radius:var(--r);font-size:12px;font-weight:500;cursor:pointer;font-family:inherit}
+.sfp-btn:hover{background:var(--orange-dk)}
+.sfp-btn:disabled{opacity:.4;cursor:default}
+.rq-pg-body{display:flex;flex-direction:column;flex:1;overflow:hidden;min-height:0}
+.gchat-pop{position:fixed;bottom:24px;left:24px;background:var(--white);border:1px solid var(--border);border-radius:var(--rl);box-shadow:0 4px 20px rgba(26,43,74,.18);z-index:200;width:300px;transform:translateY(12px);opacity:0;transition:all .25s ease;pointer-events:none}
+.gchat-pop.show{transform:translateY(0);opacity:1}
+.gc-head{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--border)}
+.gc-ico{width:22px;height:22px;border-radius:6px;background:#1A73E8;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0}
+.gc-from{font-size:11px;font-weight:600;color:var(--t1)}
+.gc-sub{font-size:10px;color:var(--t3)}
+.gc-body{padding:10px 12px;font-size:11px;color:var(--t2);line-height:1.6}
+.gc-link{color:var(--tag-t);font-weight:500;cursor:pointer;display:block;margin-top:6px;font-size:11px}
+.gc-time{font-size:10px;color:var(--t3);padding:0 12px 8px;text-align:right}
+
 </style>
 </head>
 <body>
@@ -330,6 +412,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif;
     <div class="ml" style="display:flex;gap:8px;align-items:center">
       <button class="btn-s" style="font-size:12px;padding:5px 10px">
         <svg class="icosvg" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </button>
+      <button class="btn-s" onclick="openRQ()" style="margin-right:4px">
+        <svg class="icosvg" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        Review Queue
+        <span style="background:var(--orange);color:#fff;font-size:10px;font-weight:700;padding:1px 5px;border-radius:100px">1</span>
       </button>
       <button class="btn-p" onclick="openAddNew()">
         <svg class="icosvg" style="stroke:#fff" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -1244,8 +1331,9 @@ function handleVApprove(){
   btn.textContent='Sending...';btn.style.pointerEvents='none';
   setTimeout(function(){
     btn.textContent='Sent for Approval';btn.classList.remove('on');btn.classList.add('done');
+    showGchat('Approval needed: INV-CC-00422\n\nVendor: Hind Terminals Pvt Ltd\nQID: XQFCL062621269\nAmount: USD 2,400.00\nType: Detention Fee (Accessorial)\n\nPlease review in the Credit Card tab.','Rachit');
     showToast('Invoice sent for approval. Rachit notified via Gchat.');
-    setTimeout(function(){showPayScreen();},2000);
+    setTimeout(function(){openRQ();},1800);
   },1200);
 }
 
@@ -1383,6 +1471,437 @@ function runValidateDemo(){
   },300);
 }
 
+/* ──/* ── REVIEW QUEUE ── */
+var rqCCApproved = false;
+
+/* Data: Bank validated (5 vendors) */
+var RQ_BANK_VEND = [
+  {name:'Hapag', count:1, total:'INR 3,11,184.19', invs:[
+    {id:'GJ11205970', date:'Inv 4/26/2026', due:'Due 4/27/2026', type:'Tax+', amt:'INR 3,11,184.19',
+     remarks:'Billing rates matches with scope of work in XAP and vendor buy\nAll decisions are taken and this is either passed on or absorbed\nAccessorial line items:\n- Liner Detention (Destination): INR 1,21,875.03\n- Liner Detention (Destination): INR 56,850.00',
+     passedOn:'INR 1,78,725.03', absorbed:'--',
+     qids:[{id:'XQFCL05268825T',lines:[{ref:'XACSL05262371T',amt:'INR 1,21,875.03'}]},{id:'XQFCL05268823T',lines:[{ref:'XACSL05262370T',amt:'INR 56,850.00'}]}]}
+  ]},
+  {name:'NTG', count:1, total:'USD 316.00', invs:[
+    {id:'NTG-INV-0341', date:'Inv 6/1/2026', due:'Due 6/15/2026', type:'Non-tax', amt:'USD 316.00',
+     remarks:'Ocean freight charges as per agreed rate. Billing matches scope of work in XAP.',
+     passedOn:'USD 316.00', absorbed:'--',
+     qids:[{id:'XQFCL062700341',lines:[{ref:'XQFCL062700341',amt:'USD 316.00'}]}]}
+  ]},
+  {name:'Royal', count:1, total:'INR 1,169.38', invs:[
+    {id:'RCL2627E495', date:'Inv 5/10/2026', due:'Due 5/25/2026', type:'Non-tax', amt:'INR 1,169.38',
+     remarks:'Billing rate confirmed per scope of work. All decisions taken.',
+     passedOn:'INR 1,169.38', absorbed:'--',
+     qids:[{id:'XQLCL071800229',lines:[{ref:'XQLCL071800229',amt:'INR 1,169.38'}]}]}
+  ]},
+  {name:'Skart Global Express', count:2, total:'INR 61,545.75', invs:[
+    {id:'SKG-2254', date:'Inv 5/12/2026', due:'Due 5/28/2026', type:'Non-tax', amt:'INR 31,545.75',
+     remarks:'Destination delivery charges and handling. Billing matches vendor buy rate.',
+     passedOn:'INR 31,545.75', absorbed:'--',
+     qids:[{id:'XQFCL062621269',lines:[{ref:'XQFCL062621269',amt:'INR 31,545.75'}]}]},
+    {id:'SKG-2255', date:'Inv 5/13/2026', due:'Due 5/29/2026', type:'Non-tax', amt:'INR 30,000.00',
+     remarks:'CFS charges as per agreed scope. Passed on to customer.',
+     passedOn:'INR 30,000.00', absorbed:'--',
+     qids:[{id:'XQFCL062700341',lines:[{ref:'XQFCL062700341',amt:'INR 30,000.00'}]}]}
+  ]},
+  {name:'Skyways', count:1, total:'INR 13,30,596.60', invs:[
+    {id:'SKY-1330', date:'Inv 6/5/2026', due:'Due 6/20/2026', type:'Tax+', amt:'INR 13,30,596.60',
+     remarks:'Air freight charges. Billing rates match scope of work and vendor buy. All decisions taken and passed on.',
+     passedOn:'INR 13,30,596.60', absorbed:'--',
+     qids:[{id:'XQAIR052200118',lines:[{ref:'XQAIR052200118',amt:'INR 13,30,596.60'}]}]}
+  ]}
+];
+
+/* Data: CC validated (1 vendor) */
+var RQ_CC_VEND = [
+  {name:'Hind Terminals Pvt Ltd', count:1, total:'USD 2,400.00', invs:[
+    {id:'INV-CC-00422',
+     date:'Inv '+new Date().toLocaleDateString('en-US',{month:'numeric',day:'numeric',year:'numeric'}),
+     due:'Due '+new Date().toLocaleDateString('en-US',{month:'numeric',day:'numeric',year:'numeric'}),
+     type:'Non-tax (Credit Card)', amt:'USD 2,400.00',
+     remarks:'Credit card payment recorded. Detention fee for container held at Hind Terminals beyond free days.',
+     passedOn:'USD 2,400.00', absorbed:'--',
+     qids:[{id:'XQFCL062621269',lines:[{ref:'Detention Fee',amt:'USD 2,400.00'}]}]}
+  ]}
+];
+
+/* Data: Bank approved (3 invoices) */
+var RQ_APP_BANK = [
+  {id:'AE037-26-27', vendor:'Avlokan Exim', date:'4/18/2026', due:'5/3/2026',
+   gross:'INR 4,789.00', tax:'INR 862.02', total:'INR 5,651.00',
+   acc:'No accessorials', accQid:'XQFCL052621476', entity:'HOLAPORT', type:'Tax+',
+   tcOwner:'--', tcDate:'Validated 5/19/2026',
+   remarks:'Billing Rate matches with scope of work in XAP and vendor buy.',
+   zohoId:'AE037/26-27 - test', zohoSub:'INR 4,789.00', zohoTax:'+ INR 862.02',
+   zohoRound:'- INR 0.02', zohoTotal:'INR 5,651.00', zohoBal:'INR 5,651.00'},
+  {id:'SKY-1330-APR', vendor:'Skyways', date:'6/5/2026', due:'6/20/2026',
+   gross:'INR 13,30,596.60', tax:'INR 0.00', total:'INR 13,30,596.60',
+   acc:'No accessorials', accQid:'XQAIR052200118', entity:'FIRST-SHIPMENT', type:'Non-tax',
+   tcOwner:'Aiswarya K S', tcDate:'Validated 6/10/2026',
+   remarks:'Air freight charges match scope of work. All billing decisions taken.',
+   zohoId:'SKY-1330 - Zoho', zohoSub:'INR 13,30,596.60', zohoTax:'+ INR 0.00',
+   zohoRound:'- 0.00', zohoTotal:'INR 13,30,596.60', zohoBal:'INR 13,30,596.60'},
+  {id:'SGE-2254-B', vendor:'Skart Global Express', date:'5/12/2026', due:'5/28/2026',
+   gross:'INR 61,545.75', tax:'INR 0.00', total:'INR 61,545.75',
+   acc:'No accessorials', accQid:'XQFCL062700341', entity:'HOLAPORT', type:'Non-tax',
+   tcOwner:'Pooja B', tcDate:'Validated 6/8/2026',
+   remarks:'Destination delivery and CFS charges per agreed scope.',
+   zohoId:'SGE-2254 - Zoho', zohoSub:'INR 61,545.75', zohoTax:'+ INR 0.00',
+   zohoRound:'- 0.00', zohoTotal:'INR 61,545.75', zohoBal:'INR 61,545.75'}
+];
+
+/* Data: CC approved (populated after approval) */
+var RQ_APP_CC = [{
+  id:'INV-CC-00422', vendor:'Hind Terminals Pvt Ltd',
+  date:new Date().toLocaleDateString('en-US',{month:'numeric',day:'numeric',year:'numeric'}),
+  due:new Date().toLocaleDateString('en-US',{month:'numeric',day:'numeric',year:'numeric'}),
+  gross:'USD 2,400.00', tax:'USD 0.00', total:'USD 2,400.00',
+  acc:'Detention Fee', accQid:'XQFCL062621269', entity:'FIRST-SHIPMENT', type:'Non-tax',
+  tcOwner:'--', tcDate:'Validated '+new Date().toLocaleDateString('en-US',{month:'numeric',day:'numeric',year:'numeric'}),
+  remarks:'Credit card payment recorded. Detention fee for container held at Hind Terminals beyond free days.',
+  zohoId:'INV-CC-00422 - Zoho', zohoSub:'USD 2,400.00', zohoTax:'+ USD 0.00',
+  zohoRound:'- 0.00', zohoTotal:'USD 2,400.00', zohoBal:'USD 2,400.00'
+}];
+
+/* ── Build helpers ── */
+function rqBuildVendorGroup(v, vi, prefix, onApprove, onReject) {
+  var g = document.createElement('div');
+  g.className = 'rq-vend-grp';
+  var detId = prefix+'det'+vi;
+  var arrId = prefix+'arr'+vi;
+  var detHtml = '<div id="'+detId+'" class="rq-inv-det">';
+  v.invs.forEach(function(inv, ii) {
+    var actId = prefix+'act'+vi+'x'+ii;
+    var accHtml = '<div>';
+    accHtml += '<div style="display:flex;align-items:baseline;gap:6px;margin-bottom:4px"><span class="rq-acc-lbl">Passed on</span><span class="rq-acc-val">'+inv.passedOn+'</span></div>';
+    accHtml += '<div style="display:flex;align-items:baseline;gap:6px;margin-bottom:6px"><span class="rq-acc-lbl">Absorbed</span><span class="rq-acc-nil">'+inv.absorbed+'</span></div>';
+    inv.qids.forEach(function(q) {
+      accHtml += '<div class="rq-qid-head">'+q.id+'</div>';
+      q.lines.forEach(function(l) { accHtml += '<div><span class="rq-qid-ref">'+l.ref+'</span> <span class="rq-qid-sub">'+l.amt+'</span></div>'; });
+    });
+    accHtml += '</div>';
+    detHtml +=
+      '<div class="rq-inv-grid">'+
+        '<div><div class="rq-inv-id">'+inv.id+'</div>'+
+        '<div class="rq-inv-meta">'+inv.date+' '+inv.due+'</div>'+
+        '<div class="rq-inv-meta">'+inv.type+'</div>'+
+        '<div class="rq-inv-rmk">'+inv.remarks.replace(/\n/g,'<br>')+'</div></div>'+
+        '<div style="font-size:12px;font-weight:500;color:var(--t1)">'+inv.amt+'</div>'+
+        accHtml+
+        '<div class="rq-act-col" id="'+actId+'">'+
+          '<button class="rq-act-btn rq-ok" data-act="'+actId+'" data-type="ok" onclick="rqActClick(this,\''+prefix+'\','+vi+','+ii+')">&#10003;</button>'+
+          '<button class="rq-act-btn rq-no" data-act="'+actId+'" data-type="no" onclick="rqActReject(this,\''+actId+'\')">&#10005;</button>'+
+        '</div>'+
+      '</div>';
+  });
+  detHtml += '</div>';
+  g.innerHTML =
+    '<div class="rq-vend-row" onclick="rqToggleDet(\''+detId+'\',\''+arrId+'\')">'+
+      '<div><div class="rq-vend-name">'+v.name+'</div><div class="rq-vend-ct">'+v.count+' Invoice'+(v.count>1?'s':'')+'</div></div>'+
+      '<div class="rq-vend-amt">'+v.total+'</div>'+
+      '<div></div>'+
+      '<button class="rq-exp" id="'+arrId+'">&#8964;</button>'+
+    '</div>'+detHtml;
+  return g;
+}
+
+function rqActClick(btn, prefix, vi, ii) {
+  var actId = prefix+'act'+vi+'x'+ii;
+  document.getElementById(actId).innerHTML = '<button class="rq-act-btn rq-done-ok">&#10003;</button>';
+  if(prefix === 'cc') {
+    rqCCApproved = true;
+    document.getElementById('rqValBub').textContent = '5';
+    document.getElementById('rqCCValBub').textContent = '0';
+    document.getElementById('rqAppBub').textContent = '4';
+    document.getElementById('rqCCAppBub').textContent = '1';
+    buildRQAppCC();
+    showGchat('INV-CC-00422 approved by Rachit.\n\nVendor: Hind Terminals Pvt Ltd\nAmount: USD 2,400.00\nQID: XQFCL062621269\n\nInvoice moved to Approved state.','XAP');
+    showToast('INV-CC-00422 approved. Moved to Approved.');
+    setTimeout(function(){ rqSwitchPg('app'); rqSwitchAppSub('cc'); }, 800);
+  } else {
+    showToast('Invoice approved. Moved to Approved state.');
+  }
+}
+
+function rqActReject(btn, actId) {
+  document.getElementById(actId).innerHTML = '<button class="rq-act-btn rq-done-no">&#10005;</button>';
+  showToast('Invoice disputed.', true);
+}
+
+function buildRQValBank() {
+  var cont = document.getElementById('rqValBankContent');
+  if(!cont) return;
+  cont.innerHTML = '';
+  RQ_BANK_VEND.forEach(function(v, vi) {
+    cont.appendChild(rqBuildVendorGroup(v, vi, 'bk', null, null));
+  });
+}
+
+function buildRQValCC() {
+  var cont = document.getElementById('rqCCVendors');
+  if(!cont) return;
+  cont.innerHTML = '';
+  RQ_CC_VEND.forEach(function(v, vi) {
+    var g = rqBuildVendorGroup(v, vi, 'cc', null, null);
+    cont.appendChild(g);
+    var det = document.getElementById('cc'+'det'+vi);
+    if(det) det.classList.add('open');
+    var arr = document.getElementById('cc'+'arr'+vi);
+    if(arr) arr.classList.add('open');
+  });
+}
+
+function rqBuildApprovedRow(inv, tbodyId) {
+  var tb = document.getElementById(tbodyId);
+  if(!tb) return;
+  var gh = document.createElement('tr');
+  gh.style.cssText = 'background:var(--lock-bg)';
+  gh.innerHTML = '<td colspan="10" style="padding:7px 14px;font-weight:600;font-size:12px;border-bottom:1px solid var(--border)">'+
+    '<div style="display:flex;align-items:center;gap:8px"><input type="checkbox" class="appr-chk"> '+inv.vendor+'</div></td>';
+  tb.appendChild(gh);
+  var tr = document.createElement('tr');
+  tr.innerHTML =
+    '<td><input type="checkbox" class="appr-chk"></td>'+
+    '<td><div style="color:var(--orange);font-weight:600;cursor:pointer;font-size:12px">'+inv.id+'</div>'+
+      '<div style="color:var(--t2);font-size:11px">'+inv.vendor+'</div>'+
+      '<div style="color:var(--t3);font-size:11px">'+inv.date+'</div></td>'+
+    '<td style="font-size:12px">'+inv.due+'</td>'+
+    '<td>'+
+      '<div style="font-size:11px;color:var(--t3)">Gross</div><div style="font-size:12px">'+inv.gross+'</div>'+
+      '<div style="font-size:11px;color:var(--t3);margin-top:4px">Tax</div><div style="font-size:12px">'+inv.tax+'</div>'+
+      '<div style="font-size:11px;color:var(--t3);margin-top:4px;font-weight:600">Total</div><div style="font-size:12px;font-weight:700">'+inv.total+'</div>'+
+    '</td>'+
+    '<td><div style="font-size:11px;color:var(--t3)">'+inv.acc+'</div>'+
+      '<div style="font-size:11px;color:var(--t3);margin-top:2px">'+inv.accQid+'</div></td>'+
+    '<td><div style="font-weight:500;font-size:12px">'+inv.entity+'</div>'+
+      '<div style="color:var(--t3);font-size:11px;margin-top:2px">'+inv.type+'</div></td>'+
+    '<td><div style="color:var(--t2);font-size:11px">'+inv.tcOwner+'</div>'+
+      '<div style="color:var(--t3);font-size:11px;margin-top:2px">'+inv.tcDate+'</div></td>'+
+    '<td style="font-size:11px;color:var(--t2);line-height:1.5;max-width:160px">'+inv.remarks+'</td>'+
+    '<td class="z-blk">'+
+      '<div class="z-lnk">'+inv.zohoId+
+        ' <svg style="width:11px;height:11px;stroke:var(--tag-t);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round" viewBox="0 0 24 24">'+
+        '<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>'+
+        '<polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></div>'+
+      '<div class="z-row"><span>Sub Total</span><span>'+inv.zohoSub+'</span></div>'+
+      '<div class="z-row z-tax"><span>Tax</span><span>'+inv.zohoTax+'</span></div>'+
+      '<div class="z-row z-round"><span>Round Off</span><span>'+inv.zohoRound+'</span></div>'+
+      '<div class="z-row z-total"><span>Zoho Bill Total</span><span>'+inv.zohoTotal+'</span></div>'+
+      '<div class="z-row"><span>Balance</span><span>'+inv.zohoBal+'</span></div>'+
+    '</td>'+
+    '<td><input type="checkbox" class="appr-chk" style="display:block;margin:0 auto"></td>';
+  tb.appendChild(tr);
+}
+
+function buildRQAppBank() {
+  var tb = document.getElementById('rqAppBankTbody');
+  if(!tb) return;
+  tb.innerHTML = '';
+  RQ_APP_BANK.forEach(function(inv) { rqBuildApprovedRow(inv,'rqAppBankTbody'); });
+}
+
+function buildRQAppCC() {
+  var tb = document.getElementById('rqAppCCTbody');
+  if(!tb) return;
+  tb.innerHTML = '';
+  if(rqCCApproved) { rqBuildApprovedRow(RQ_APP_CC[0],'rqAppCCTbody'); }
+}
+
+function rqToggleDet(detId, arrId) {
+  var d = document.getElementById(detId);
+  var a = document.getElementById(arrId);
+  if(!d) return;
+  d.classList.toggle('open');
+  a.classList.toggle('open');
+}
+
+function rqCCToggleAll(chk) {
+  document.querySelectorAll('.rq-row-chk').forEach(function(c) { c.checked = chk.checked; });
+  rqRowChkChange();
+}
+function rqRowChkChange() {
+  var n = document.querySelectorAll('.rq-row-chk:checked').length;
+  document.getElementById('rqCCSelCount').textContent = n + ' selected';
+  document.getElementById('rqCCSFP').disabled = n === 0;
+}
+
+function rqSendForPayment() {
+  showGchat('Raj, payment required:\n\nInvoice: INV-CC-00422\nVendor: Hind Terminals Pvt Ltd\nQID: XQFCL062621269\nAmount: USD 2,400.00\n\nPlease process the credit card payment.','Raj (Finance)');
+  showToast('Payment request sent to Raj (Finance) via Gchat.');
+  document.getElementById('rqCCSFP').disabled = true;
+  setTimeout(function(){ closeRQ(); showPayScreen(); }, 1600);
+}
+
+function rqSwitchPg(pg) {
+  var isVal = pg === 'val';
+  document.getElementById('rqPgVal').className = 'pg-tab'+(isVal?' on':'');
+  document.getElementById('rqPgApp').className = 'pg-tab'+(!isVal?' on':'');
+  var vb = document.getElementById('rqValBody');
+  var ab = document.getElementById('rqAppBody');
+  vb.style.display = isVal ? 'flex' : 'none';
+  vb.style.flexDirection = 'column';
+  ab.style.display = !isVal ? 'flex' : 'none';
+  ab.style.flexDirection = 'column';
+}
+
+function rqSwitchValSub(sub) {
+  var isBank = sub === 'bank';
+  document.getElementById('rvst-bank').className = 'rq-sub-tab'+(isBank?' on':'');
+  document.getElementById('rvst-cc').className   = 'rq-sub-tab'+(!isBank?' on':'');
+  document.getElementById('rqValBank').style.display = isBank ? 'block' : 'none';
+  document.getElementById('rqValCC').style.display   = !isBank ? 'block' : 'none';
+}
+
+function rqSwitchAppSub(sub) {
+  var isBank = sub === 'bank';
+  document.getElementById('rast-bank').className = 'rq-sub-tab'+(isBank?' on':'');
+  document.getElementById('rast-cc').className   = 'rq-sub-tab'+(!isBank?' on':'');
+  var bw = document.getElementById('rqAppBankWrap');
+  var cw = document.getElementById('rqAppCCWrap');
+  bw.style.display = isBank ? 'flex' : 'none'; bw.style.flexDirection = 'column';
+  cw.style.display = !isBank ? 'flex' : 'none'; cw.style.flexDirection = 'column';
+}
+
+function openRQ() {
+  buildRQValBank();
+  buildRQValCC();
+  buildRQAppBank();
+  buildRQAppCC();
+  document.getElementById('rqValBub').textContent  = rqCCApproved ? '5' : '6';
+  document.getElementById('rqAppBub').textContent  = rqCCApproved ? '4' : '3';
+  document.getElementById('rqCCValBub').textContent = rqCCApproved ? '0' : '1';
+  document.getElementById('rqCCAppBub').textContent = rqCCApproved ? '1' : '0';
+  rqSwitchPg('val');
+  rqSwitchValSub('bank');
+  rqSwitchAppSub('bank');
+  document.getElementById('ovRQ').classList.add('open');
+  if(!rqCCApproved) {
+    showGchat('Approval needed: INV-CC-00422\n\nVendor: Hind Terminals Pvt Ltd\nQID: XQFCL062621269\nAmount: USD 2,400.00\nType: Detention Fee (Accessorial)\n\nPlease review in the Credit Card tab.','Rachit');
+  }
+}
+
+function closeRQ() { document.getElementById('ovRQ').classList.remove('open'); }
+
+function showGchat(msg, to) {
+  var p = document.getElementById('gchatPop');
+  document.getElementById('gchatBody').innerHTML = msg.replace(/\n/g,'<br>') + '<span class="gc-link">Open in Review Queue &#8599;</span>';
+  p.classList.add('show');
+  setTimeout(function(){ p.classList.remove('show'); }, 5500);
+}
 </script>
+<!-- ══ REVIEW QUEUE MODAL ══ -->
+<div class="rq-overlay" id="ovRQ">
+  <div class="rq-modal">
+
+    <div class="rq-head">
+      <div class="rq-head-ico"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
+      <div>
+        <div class="rq-title">Review Queue</div>
+        <div class="rq-sub" id="rqSub">9 invoices</div>
+      </div>
+      <button class="btn-s" style="margin-left:10px;padding:4px 8px">
+        <svg class="icosvg" viewBox="0 0 24 24"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
+      </button>
+      <button class="rq-close" onclick="closeRQ()">&times;</button>
+    </div>
+
+    <div class="pg-tabs">
+      <div class="pg-tab on" id="rqPgVal" onclick="rqSwitchPg('val')">
+        Validated <span class="pg-bubble pb-val" id="rqValBub">6</span>
+      </div>
+      <div class="pg-tab" id="rqPgApp" onclick="rqSwitchPg('app')">
+        Approved <span class="pg-bubble pb-app" id="rqAppBub">3</span>
+      </div>
+    </div>
+
+    <!-- VALIDATED PAGE -->
+    <div id="rqValBody" class="rq-pg-body">
+      <div class="rq-sub-tabs">
+        <div class="rq-sub-tab on" id="rvst-bank" onclick="rqSwitchValSub('bank')">
+          Bank Payment <span class="st-bub stb-bank">5</span>
+        </div>
+        <div class="rq-sub-tab" id="rvst-cc" onclick="rqSwitchValSub('cc')">
+          Credit Card <span class="st-bub stb-cc" id="rqCCValBub">1</span>
+        </div>
+      </div>
+      <div class="rq-body" id="rqValBank">
+        <div class="v-col-head">
+          <span>Vendor</span><span>To Pay</span><span>Accessorials</span><span></span>
+        </div>
+        <div id="rqValBankContent"></div>
+      </div>
+      <div class="rq-body" id="rqValCC" style="display:none">
+        <div class="v-col-head">
+          <span>Vendor</span><span>To Pay</span><span>Accessorials</span><span></span>
+        </div>
+        <div id="rqCCVendors"></div>
+      </div>
+    </div>
+
+    <!-- APPROVED PAGE -->
+    <div id="rqAppBody" class="rq-pg-body" style="display:none">
+      <div class="rq-sub-tabs">
+        <div class="rq-sub-tab on" id="rast-bank" onclick="rqSwitchAppSub('bank')">
+          Bank Payment <span class="st-bub stb-bank">3</span>
+        </div>
+        <div class="rq-sub-tab" id="rast-cc" onclick="rqSwitchAppSub('cc')">
+          Credit Card <span class="st-bub stb-cc" id="rqCCAppBub">0</span>
+        </div>
+      </div>
+
+      <div id="rqAppBankWrap" style="display:flex;flex-direction:column;flex:1;overflow:hidden;min-height:0">
+        <div class="rq-body" id="rqAppBank">
+          <table class="appr-tbl">
+            <thead><tr>
+              <th style="width:36px"><input type="checkbox" class="appr-chk"></th>
+              <th>Invoice</th><th>Due Date</th><th>Amounts</th><th>Accessorials</th>
+              <th>Entity / Type</th><th>TC Owner</th><th>Remarks</th><th>Zoho Bill</th><th style="width:36px"></th>
+            </tr></thead>
+            <tbody id="rqAppBankTbody"></tbody>
+          </table>
+        </div>
+        <div class="sfp-bar">
+          <span style="font-size:12px;color:var(--t2)">0 selected</span>
+          <div class="ml" style="display:flex;gap:8px">
+            <button class="btn-s" onclick="closeRQ()">Close</button>
+            <button class="sfp-btn" disabled>Send for Payment</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="rqAppCCWrap" style="display:none;flex-direction:column;flex:1;overflow:hidden;min-height:0">
+        <div class="rq-body" id="rqAppCC">
+          <table class="appr-tbl">
+            <thead><tr>
+              <th style="width:36px"><input type="checkbox" class="appr-chk" id="rqCCSelAll" onchange="rqCCToggleAll(this)"></th>
+              <th>Invoice</th><th>Due Date</th><th>Amounts</th><th>Accessorials</th>
+              <th>Entity / Type</th><th>TC Owner</th><th>Remarks</th><th>Zoho Bill</th><th style="width:36px"></th>
+            </tr></thead>
+            <tbody id="rqAppCCTbody"></tbody>
+          </table>
+        </div>
+        <div class="sfp-bar">
+          <span style="font-size:12px;color:var(--t2)" id="rqCCSelCount">0 selected</span>
+          <div class="ml" style="display:flex;gap:8px">
+            <button class="btn-s" onclick="closeRQ()">Close</button>
+            <button class="sfp-btn" id="rqCCSFP" disabled onclick="rqSendForPayment()">Send for Payment</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- GCHAT NOTIFICATION -->
+<div class="gchat-pop" id="gchatPop">
+  <div class="gc-head">
+    <div class="gc-ico">G</div>
+    <div><div class="gc-from">XAP Notifications</div><div class="gc-sub">via Google Chat</div></div>
+  </div>
+  <div class="gc-body" id="gchatBody"></div>
+  <div class="gc-time">Just now</div>
+</div>
+
 </body>
 </html>
