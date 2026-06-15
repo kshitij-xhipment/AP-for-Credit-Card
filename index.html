@@ -1651,17 +1651,22 @@ function buildRQValCC() {
   });
 }
 
-function rqBuildApprovedRow(inv, tbodyId) {
+function rqBuildApprovedRow(inv, tbodyId, rowClass, countId, sfpId) {
   var tb = document.getElementById(tbodyId);
   if(!tb) return;
+  /* group header row */
   var gh = document.createElement('tr');
   gh.style.cssText = 'background:var(--lock-bg)';
   gh.innerHTML = '<td colspan="10" style="padding:7px 14px;font-weight:600;font-size:12px;border-bottom:1px solid var(--border)">'+
-    '<div style="display:flex;align-items:center;gap:8px"><input type="checkbox" class="appr-chk"> '+inv.vendor+'</div></td>';
+    '<div style="display:flex;align-items:center;gap:8px">'+
+      '<input type="checkbox" class="appr-chk" onchange="rqGrpChk(this,\''+rowClass+'\',\''+countId+'\',\''+sfpId+'\')">' +
+      inv.vendor+
+    '</div></td>';
   tb.appendChild(gh);
+  /* invoice row */
   var tr = document.createElement('tr');
   tr.innerHTML =
-    '<td><input type="checkbox" class="appr-chk"></td>'+
+    '<td><input type="checkbox" class="appr-chk '+rowClass+'" onchange="rqUpdateSFP(\''+rowClass+'\',\''+countId+'\',\''+sfpId+'\')">' +
     '<td><div style="color:var(--orange);font-weight:600;cursor:pointer;font-size:12px">'+inv.id+'</div>'+
       '<div style="color:var(--t2);font-size:11px">'+inv.vendor+'</div>'+
       '<div style="color:var(--t3);font-size:11px">'+inv.date+'</div></td>'+
@@ -1671,7 +1676,7 @@ function rqBuildApprovedRow(inv, tbodyId) {
       '<div style="font-size:11px;color:var(--t3);margin-top:4px">Tax</div><div style="font-size:12px">'+inv.tax+'</div>'+
       '<div style="font-size:11px;color:var(--t3);margin-top:4px;font-weight:600">Total</div><div style="font-size:12px;font-weight:700">'+inv.total+'</div>'+
     '</td>'+
-    '<td><div style="font-size:11px;color:var(--t3)">'+inv.acc+'</div>'+
+    '<td><div style="font-size:11px;color:var(--orange);font-weight:500">'+inv.acc+'</div>'+
       '<div style="font-size:11px;color:var(--t3);margin-top:2px">'+inv.accQid+'</div></td>'+
     '<td><div style="font-weight:500;font-size:12px">'+inv.entity+'</div>'+
       '<div style="color:var(--t3);font-size:11px;margin-top:2px">'+inv.type+'</div></td>'+
@@ -1689,22 +1694,38 @@ function rqBuildApprovedRow(inv, tbodyId) {
       '<div class="z-row z-total"><span>Zoho Bill Total</span><span>'+inv.zohoTotal+'</span></div>'+
       '<div class="z-row"><span>Balance</span><span>'+inv.zohoBal+'</span></div>'+
     '</td>'+
-    '<td><input type="checkbox" class="appr-chk" style="display:block;margin:0 auto"></td>';
+    '<td></td>';
   tb.appendChild(tr);
+}
+
+function rqGrpChk(chk, rowClass, countId, sfpId) {
+  document.querySelectorAll('.'+rowClass).forEach(function(c) { c.checked = chk.checked; });
+  rqUpdateSFP(rowClass, countId, sfpId);
+}
+
+function rqUpdateSFP(rowClass, countId, sfpId) {
+  var n = document.querySelectorAll('.'+rowClass+':checked').length;
+  var total = document.querySelectorAll('.'+rowClass).length;
+  document.getElementById(countId).textContent = n + ' of ' + total + ' selected';
+  document.getElementById(sfpId).disabled = (n === 0);
 }
 
 function buildRQAppBank() {
   var tb = document.getElementById('rqAppBankTbody');
   if(!tb) return;
   tb.innerHTML = '';
-  RQ_APP_BANK.forEach(function(inv) { rqBuildApprovedRow(inv,'rqAppBankTbody'); });
+  RQ_APP_BANK.forEach(function(inv) {
+    rqBuildApprovedRow(inv, 'rqAppBankTbody', 'rq-bk-row', 'rqBankSelCount', 'rqBankSFP');
+  });
 }
 
 function buildRQAppCC() {
   var tb = document.getElementById('rqAppCCTbody');
   if(!tb) return;
   tb.innerHTML = '';
-  if(rqCCApproved) { rqBuildApprovedRow(RQ_APP_CC[0],'rqAppCCTbody'); }
+  if(rqCCApproved) {
+    rqBuildApprovedRow(RQ_APP_CC[0], 'rqAppCCTbody', 'rq-cc-row', 'rqCCSelCount', 'rqCCSFP');
+  }
 }
 
 function rqToggleDet(detId, arrId) {
@@ -1715,21 +1736,21 @@ function rqToggleDet(detId, arrId) {
   a.classList.toggle('open');
 }
 
-function rqCCToggleAll(chk) {
-  document.querySelectorAll('.rq-row-chk').forEach(function(c) { c.checked = chk.checked; });
-  rqRowChkChange();
-}
-function rqRowChkChange() {
-  var n = document.querySelectorAll('.rq-row-chk:checked').length;
-  document.getElementById('rqCCSelCount').textContent = n + ' selected';
-  document.getElementById('rqCCSFP').disabled = n === 0;
-}
+
 
 function rqSendForPayment() {
   showGchat('Raj, payment required:\n\nInvoice: INV-CC-00422\nVendor: Hind Terminals Pvt Ltd\nQID: XQFCL062621269\nAmount: USD 2,400.00\n\nPlease process the credit card payment.','Raj (Finance)');
   showToast('Payment request sent to Raj (Finance) via Gchat.');
   document.getElementById('rqCCSFP').disabled = true;
   setTimeout(function(){ closeRQ(); showPayScreen(); }, 1600);
+}
+
+function rqSendBankForPayment() {
+  var n = document.querySelectorAll('.rq-bk-row:checked').length;
+  showGchat('Raj, bank payment required:\n\n'+n+' invoice'+(n>1?'s':'')+' selected for payment.\n\nPlease review and process via bank transfer.','Raj (Finance)');
+  showToast('Payment request sent to Raj (Finance) via Gchat.');
+  document.getElementById('rqBankSFP').disabled = true;
+  document.getElementById('rqBankSelCount').textContent = '0 selected';
 }
 
 function rqSwitchPg(pg) {
@@ -1853,7 +1874,7 @@ function showGchat(msg, to) {
         <div class="rq-body" id="rqAppBank">
           <table class="appr-tbl">
             <thead><tr>
-              <th style="width:36px"><input type="checkbox" class="appr-chk"></th>
+              <th style="width:36px"><input type="checkbox" class="appr-chk" onchange="rqGrpChk(this,'rq-bk-row','rqBankSelCount','rqBankSFP')"></th>
               <th>Invoice</th><th>Due Date</th><th>Amounts</th><th>Accessorials</th>
               <th>Entity / Type</th><th>TC Owner</th><th>Remarks</th><th>Zoho Bill</th><th style="width:36px"></th>
             </tr></thead>
@@ -1861,10 +1882,10 @@ function showGchat(msg, to) {
           </table>
         </div>
         <div class="sfp-bar">
-          <span style="font-size:12px;color:var(--t2)">0 selected</span>
+          <span style="font-size:12px;color:var(--t2)" id="rqBankSelCount">0 selected</span>
           <div class="ml" style="display:flex;gap:8px">
             <button class="btn-s" onclick="closeRQ()">Close</button>
-            <button class="sfp-btn" disabled>Send for Payment</button>
+            <button class="sfp-btn" id="rqBankSFP" disabled onclick="rqSendBankForPayment()">Send for Payment</button>
           </div>
         </div>
       </div>
@@ -1873,7 +1894,7 @@ function showGchat(msg, to) {
         <div class="rq-body" id="rqAppCC">
           <table class="appr-tbl">
             <thead><tr>
-              <th style="width:36px"><input type="checkbox" class="appr-chk" id="rqCCSelAll" onchange="rqCCToggleAll(this)"></th>
+              <th style="width:36px"><input type="checkbox" class="appr-chk" onchange="rqGrpChk(this,'rq-cc-row','rqCCSelCount','rqCCSFP')"></th>
               <th>Invoice</th><th>Due Date</th><th>Amounts</th><th>Accessorials</th>
               <th>Entity / Type</th><th>TC Owner</th><th>Remarks</th><th>Zoho Bill</th><th style="width:36px"></th>
             </tr></thead>
