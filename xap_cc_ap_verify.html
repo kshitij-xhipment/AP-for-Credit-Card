@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>XAP Payables</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --orange:#F26522;--orange-lt:#FEF0E9;--orange-dk:#d9561a;
+  --navy:#1A2B4A;--white:#fff;--bg:#F5F6FA;
+  --border:#E2E5ED;
+  --t1:#1A2B4A;--t2:#6B7A99;--t3:#9BA6BC;
+  --lock-bg:#F8F9FC;--lock-t:#9BA6BC;
+  --tag-bg:#EDF3FF;--tag-t:#2952A3;
+  --ok-bg:#EAF7EE;--ok-t:#1E7A3E;--ok-b:#6FCF97;
+  --sh:0 1px 3px rgba(26,43,74,.07);
+  --r:6px;--rl:10px;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif;font-size:13px;background:var(--bg);color:var(--t1);min-height:100vh;overflow:hidden}
+
+/* ── SHARED NAV ── */
+.topbar{height:44px;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 16px;gap:10px;box-shadow:var(--sh);position:sticky;top:0;z-index:10}
+.logo{font-size:15px;font-weight:700;color:var(--orange);letter-spacing:-.3px;margin-right:4px}
+.sep{color:var(--border);font-size:18px}
+.pg-title{font-size:13px;font-weight:600;color:var(--t1)}
+.btn-p{padding:6px 14px;background:var(--orange);color:#fff;border:none;border-radius:var(--r);font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;transition:background .15s;display:flex;align-items:center;gap:5px}
+.btn-p:hover{background:var(--orange-dk)}
+.btn-s{padding:6px 13px;background:var(--white);color:var(--t1);border:1px solid var(--border);border-radius:var(--r);font-size:12px;cursor:pointer;font-family:inherit;transition:background .15s;display:flex;align-items:center;gap:5px}
+.btn-s:hover{background:var(--bg)}
+.btn-zoho{display:flex;align-items:center;gap:5px;padding:5px 12px;border-radius:var(--r);font-size:11px;font-weight:500;font-family:inherit;cursor:pointer;background:var(--orange-lt);color:var(--orange);border:1px solid var(--orange);transition:all .15s}
+.btn-zoho:hover{background:var(--orange);color:#fff}
+.btn-retrig{display:flex;align-items:center;gap:5px;padding:5px 12px;border-radius:var(--r);font-size:11px;font-weight:500;font-family:inherit;cursor:pointer;background:var(--white);color:var(--t2);border:1px solid var(--border);transition:all .15s}
+.btn-retrig:hover{background:var(--bg)}
+.ml{margin-left:auto}
+.icosvg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+
+/* ── SCREEN SWITCHER ── */
+.screen{display:none;height:calc(100vh - 44px);flex-direction:column}
+.screen.active{display:flex}
+
+/* ══════════════════════════════════
+   SCREEN A: PAYABLES LIST
+══════════════════════════════════ */
+.filters{display:flex;align-items:center;gap:8px;padding:10px 16px;background:var(--white);border-bottom:1px solid var(--border)}
+.filter-inp{padding:5px 9px;border:1px solid var(--border);border-radius:var(--r);font-size:12px;color:var(--t1);background:var(--white);outline:none;font-family:inherit;width:140px}
+.filter-inp::placeholder{color:var(--t3)}
+.filter-sel{padding:5px 24px 5px 9px;border:1px solid var(--border);border-radius:var(--r);font-size:12px;color:var(--t2);background:var(--white);outline:none;font-family:inherit;appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%236B7A99' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 7px center}
+.tbl-wrap{flex:1;overflow-y:auto}
+.ptbl{width:100%;border-collapse:collapse}
+.ptbl th{font-size:11px;font-weight:500;color:var(--t3);text-align:left;padding:9px 14px;border-bottom:1px solid var(--border);background:var(--white);position:sticky;top:0;z-index:1;text-transform:uppercase;letter-spacing:.4px;white-space:nowrap}
+.ptbl td{padding:9px 14px;border-bottom:1px solid var(--border);font-size:12px;color:var(--t1);background:var(--white);white-space:nowrap;cursor:pointer}
+.ptbl tr:hover td{background:#fafbfd}
+.inv-num{color:var(--navy);font-weight:500}
+.age-badge{font-size:11px;color:var(--tag-t);background:var(--tag-bg);padding:2px 7px;border-radius:100px;font-weight:500}
+.due-red{color:#E24B4A;font-size:12px}
+.status-pill{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:2px 8px;border-radius:4px}
+.s-mapped{background:#EDF3FF;color:#2952A3}
+.s-parsed{background:#F0F0F0;color:#5A5A6E}
+.s-pending{background:#FEF9E7;color:#8A6200}
+.s-validated{background:#FFF4E0;color:#B45309}
+.s-dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+
+/* ══════════════════════════════════
+   MODAL SHARED
+══════════════════════════════════ */
+.overlay{position:fixed;inset:0;background:rgba(26,43,74,.35);z-index:50;display:none;align-items:center;justify-content:center}
+.overlay.open{display:flex}
+.modal{background:var(--white);border-radius:var(--rl);width:500px;max-width:92vw;box-shadow:0 8px 32px rgba(26,43,74,.18);animation:modalIn .18s ease}
+@keyframes modalIn{from{transform:translateY(10px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid var(--border)}
+.modal-title{font-size:14px;font-weight:600;color:var(--t1)}
+.modal-close{background:none;border:none;cursor:pointer;color:var(--t3);font-size:20px;line-height:1;padding:2px 4px}
+.modal-close:hover{color:var(--t1)}
+.modal-body{padding:18px}
+
+/* ══════════════════════════════════
+   MODAL 1: ADD NEW CHOICE
+══════════════════════════════════ */
+.choice-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:4px}
+.choice-card{border:1px solid var(--border);border-radius:var(--rl);padding:20px 16px;cursor:pointer;transition:all .15s;text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px}
+.choice-card:hover{border-color:var(--orange);background:var(--orange-lt)}
+.choice-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center}
+.choice-icon svg{width:22px;height:22px;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.choice-a .choice-icon{background:#EDF3FF;stroke:#2952A3}
+.choice-a .choice-icon svg{stroke:#2952A3}
+.choice-b .choice-icon{background:var(--orange-lt);stroke:var(--orange)}
+.choice-b .choice-icon svg{stroke:var(--orange)}
+.choice-label{font-size:13px;font-weight:600;color:var(--t1)}
+.choice-sub{font-size:11px;color:var(--t3);line-height:1.5}
+
+/* ══════════════════════════════════
+   MODAL 2: UPLOAD INVOICES (Option A)
+══════════════════════════════════ */
+.upload-tabs{display:flex;border-bottom:1px solid var(--border);margin:-18px -18px 16px}
+.utab{padding:10px 16px;font-size:13px;color:var(--t2);cursor:pointer;border-bottom:2px solid transparent;font-weight:500}
+.utab.on{color:var(--orange);border-bottom-color:var(--orange)}
+.upload-zone{border:1.5px dashed var(--border);border-radius:var(--rl);padding:32px 20px;text-align:center;cursor:pointer;transition:border-color .15s;margin-bottom:12px}
+.upload-zone:hover{border-color:var(--orange);background:var(--orange-lt)}
+.upload-zone svg{width:32px;height:32px;stroke:var(--t3);fill:none;stroke-width:1.2;stroke-linecap:round;stroke-linejoin:round;display:block;margin:0 auto 8px}
+.upload-zone p{font-size:12px;color:var(--t3)}
+.upload-footer{display:flex;align-items:center;justify-content:space-between}
+.upload-meta{font-size:11px;color:var(--t3)}
+.choose-btn{padding:5px 12px;background:var(--orange-lt);color:var(--orange);border:1px solid var(--orange);border-radius:var(--r);font-size:12px;font-weight:500;cursor:pointer;font-family:inherit}
+
+/* ══════════════════════════════════
+   SCREEN B: CC INVOICE CREATION
+══════════════════════════════════ */
+.stepper{display:flex;align-items:center;background:var(--white);border-bottom:1px solid var(--border);padding:0 20px;height:36px}
+.step{font-size:12px;color:var(--t3);padding:0 14px;height:36px;display:flex;align-items:center;gap:6px;border-bottom:2px solid transparent}
+.step.active{color:var(--orange);border-bottom-color:var(--orange);font-weight:500}
+.step.done{color:var(--ok-t)}
+.sdot{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600}
+.step.active .sdot{background:var(--orange);color:#fff}
+.step.done .sdot{background:var(--ok-bg);color:var(--ok-t)}
+.step:not(.active):not(.done) .sdot{background:var(--bg);color:var(--t3);border:1px solid var(--border)}
+.sarr{color:var(--border);font-size:16px;padding:0 2px}
+.cc-main{display:grid;grid-template-columns:300px 1fr;flex:1;overflow:hidden}
+.lpanel{border-right:1px solid var(--border);background:var(--lock-bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:32px 24px;text-align:center}
+.proof-icon{width:64px;height:64px;border-radius:12px;background:#F0F2F7;display:flex;align-items:center;justify-content:center;border:1px dashed var(--border)}
+.proof-icon svg{width:28px;height:28px;stroke:var(--t3);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.rpanel{overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:13px}
+.flabel{font-size:11px;color:var(--t2);font-weight:500;letter-spacing:.2px;margin-bottom:3px}
+.req{color:#E24B4A;margin-left:2px}
+.finput,.fsel{width:100%;padding:6px 9px;border:1px solid var(--border);border-radius:var(--r);font-size:12px;font-family:inherit;color:var(--t1);background:var(--white);outline:none;transition:border-color .15s,box-shadow .15s;appearance:none}
+.finput:focus,.fsel:focus{border-color:var(--orange);box-shadow:0 0 0 3px rgba(242,101,34,.12)}
+.finput::placeholder{color:var(--t3)}
+.flocked{width:100%;padding:6px 9px;border:1px solid var(--border);border-radius:var(--r);font-size:12px;color:var(--lock-t);background:var(--lock-bg)}
+.fgrid{display:grid;gap:10px}
+.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:1fr 1fr 1fr}.g6{grid-template-columns:1.6fr .7fr .7fr .7fr .7fr .9fr}
+.fsel{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B7A99' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;padding-right:28px;cursor:pointer}
+.tpills{display:flex;gap:6px}
+.tpill{padding:4px 12px;border-radius:4px;font-size:11px;font-weight:500;border:1px solid transparent}
+.tpill.on{background:var(--orange-lt);color:var(--orange);border-color:var(--orange)}
+.tpill.off{background:var(--lock-bg);color:var(--t3);border-color:var(--border)}
+.scard{border:1px solid var(--border);border-radius:var(--rl);padding:12px 14px;background:var(--white)}
+.shead{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.stitle{font-size:12px;font-weight:500;color:var(--t1);display:flex;align-items:center;gap:6px}
+.stitle svg{width:14px;height:14px;stroke:var(--t2);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.add-row{font-size:11px;color:var(--orange);cursor:pointer;font-weight:500;background:none;border:none;padding:0;font-family:inherit}
+.add-row:hover{color:var(--orange-dk)}
+.litbl{width:100%;border-collapse:collapse;table-layout:fixed}
+.litbl th{font-size:10px;font-weight:500;color:var(--t3);text-align:left;padding:0 5px 6px;border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:.4px}
+.litbl td{padding:4px 3px;vertical-align:middle}
+.li-amt,.li-curr{background:var(--lock-bg);border-radius:var(--r);padding:5px 7px;font-size:11px;color:var(--lock-t);display:block}
+.li-amt{text-align:right}.li-curr{text-align:center}
+.li-del{background:none;border:none;cursor:pointer;color:var(--t3);padding:2px;display:flex;align-items:center}
+.li-del:hover{color:#E24B4A}
+.li-del svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.li-total{font-size:11px;color:var(--t2);text-align:right;padding-top:6px}
+.ddown-wrap{position:relative}
+.ddown{position:absolute;top:calc(100% + 3px);left:0;right:0;background:var(--white);border:1px solid var(--border);border-radius:var(--r);box-shadow:0 4px 16px rgba(26,43,74,.12);z-index:100;max-height:200px;overflow-y:auto;display:none}
+.ddown.open{display:block}
+.dopt{padding:8px 10px;font-size:12px;cursor:pointer;color:var(--t1);border-bottom:1px solid var(--border)}
+.dopt:last-child{border-bottom:none}.dopt:hover{background:var(--orange-lt)}
+.dopt-name{font-weight:500}.dopt-sub{font-size:10px;color:var(--t3);margin-top:1px}
+.dopt-empty{padding:10px;font-size:12px;color:var(--t3);text-align:center}
+.qtabs{display:flex;gap:4px;margin-bottom:8px}
+.qtab{font-size:11px;padding:3px 10px;border-radius:4px;border:1px solid var(--border);cursor:pointer;color:var(--t2);background:var(--white);transition:all .12s;font-family:inherit}
+.qtab.on{background:var(--orange);color:#fff;border-color:var(--orange)}
+.qtags{display:flex;flex-wrap:wrap;gap:4px;min-height:20px;margin-bottom:6px}
+.qtag{display:inline-flex;align-items:center;gap:4px;background:var(--tag-bg);color:var(--tag-t);border-radius:4px;padding:3px 8px;font-size:11px;font-weight:500}
+.qtag-x{cursor:pointer;font-size:14px;line-height:1;color:#4A70CC}.qtag-x:hover{color:#E24B4A}
+.qsugg-wrap{position:relative}
+.qsugg{position:absolute;top:calc(100% + 3px);left:0;right:0;background:var(--white);border:1px solid var(--border);border-radius:var(--r);box-shadow:0 4px 12px rgba(26,43,74,.1);z-index:100;display:none}
+.qsugg.open{display:block}
+.qopt{padding:7px 10px;font-size:12px;cursor:pointer;color:var(--t1);border-bottom:1px solid var(--border)}
+.qopt:last-child{border-bottom:none}.qopt:hover{background:var(--orange-lt)}
+.qopt-id{font-weight:500}.qopt-sub{font-size:10px;color:var(--t3);margin-top:1px}
+.liqsugg{position:absolute;top:100%;left:0;z-index:200;background:var(--white);border:1px solid var(--border);border-radius:var(--r);box-shadow:0 4px 12px rgba(26,43,74,.1);min-width:220px;display:none}
+.liqsugg.open{display:block}
+.liqopt{padding:6px 10px;font-size:11px;cursor:pointer;color:var(--t1);border-bottom:1px solid var(--border)}
+.liqopt:last-child{border-bottom:none}.liqopt:hover{background:var(--orange-lt)}
+.liqopt-id{font-weight:500;color:var(--navy)}.liqopt-sub{font-size:10px;color:var(--t3);margin-top:1px}
+.cta-bar{display:flex;gap:8px;padding-top:4px;padding-bottom:8px}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--ok-bg);color:var(--ok-t);border:1px solid var(--ok-b);border-radius:var(--r);padding:9px 14px;font-size:12px;font-weight:500;z-index:400;transform:translateY(8px);opacity:0;transition:all .2s ease;pointer-events:none}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* DEMO */
+.demo-float{position:fixed;bottom:20px;right:20px;background:var(--navy);color:#fff;border:none;border-radius:100px;padding:10px 18px;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;box-shadow:0 4px 16px rgba(26,43,74,.25);display:flex;align-items:center;gap:7px;z-index:200;transition:background .15s}
+.demo-float:hover{background:#0f1c30}
+.demo-float svg{width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+@keyframes ffield{0%{box-shadow:0 0 0 0 rgba(242,101,34,.4)}100%{box-shadow:0 0 0 4px rgba(242,101,34,0)}}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes modalIn{from{transform:translateY(10px);opacity:0}to{transform:translateY(0);opacity:1}}
+.fflash{animation:ffield .5s ease forwards}
+.nav-sub-cc{font-size:12px;color:var(--t2)}
+.nav-badge-cc{font-size:11px;font-weight:500;padding:2px 8px;border-radius:100px;background:var(--tag-bg);color:var(--tag-t)}
+/* ══ VALIDATE SCREEN ══ */
+.vscreen{display:none;flex-direction:column;height:calc(100vh - 44px)}
+.vscreen.active{display:flex}
+.vstep-bar{display:flex;align-items:center;background:var(--white);border-bottom:1px solid var(--border);padding:0 20px;height:36px;flex-shrink:0}
+.vstep{font-size:12px;color:var(--t3);padding:0 14px;height:36px;display:flex;align-items:center;gap:6px;border-bottom:2px solid transparent}
+.vstep.done{color:var(--ok-t)}.vstep.active{color:var(--orange);border-bottom-color:var(--orange);font-weight:500}
+.vsdot{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600}
+.vstep.done .vsdot{background:var(--ok-bg);color:var(--ok-t)}
+.vstep.active .vsdot{background:var(--orange);color:#fff}
+.vstep:not(.done):not(.active) .vsdot{background:var(--bg);color:var(--t3);border:1px solid var(--border)}
+.vsarr{color:var(--border);font-size:16px;padding:0 2px}
+.vbody{display:grid;grid-template-columns:380px 1fr;flex:1;overflow:hidden}
+.vdoc{border-right:1px solid var(--border);background:var(--lock-bg);overflow-y:auto;padding:16px}
+.vdoc-card{background:var(--white);border:1px solid var(--border);border-radius:8px;padding:14px;font-size:11px;line-height:1.8}
+.vdoc-title{font-size:13px;font-weight:600;text-align:center;margin-bottom:12px}
+.vdoc-kv{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #f0f0f0}
+.vdoc-kv:last-child{border-bottom:none}
+.vdoc-k{color:var(--t3)}.vdoc-v{font-weight:500;color:var(--t1)}
+.vdoc-notice{background:var(--lock-bg);border:1px dashed var(--border);border-radius:8px;padding:20px;text-align:center;margin-bottom:12px}
+.vdoc-notice svg{width:28px;height:28px;stroke:var(--t3);fill:none;stroke-width:1.5;display:block;margin:0 auto 8px}
+.vpanel{overflow-y:auto;display:flex;flex-direction:column}
+.vfilterbar{padding:9px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;background:var(--white);position:sticky;top:0;z-index:2;flex-shrink:0}
+.vsearch{padding:5px 9px 5px 26px;border:1px solid var(--border);border-radius:var(--r);font-size:12px;outline:none;font-family:inherit;width:180px;background:var(--white)}
+.vsearch-wrap{position:relative}
+.vsearch-ico{position:absolute;left:8px;top:50%;transform:translateY(-50%);width:12px;height:12px;stroke:var(--t3);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.vfsel{padding:5px 20px 5px 8px;border:1px solid var(--border);border-radius:var(--r);font-size:12px;color:var(--t2);background:var(--white);outline:none;font-family:inherit;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%236B7A99' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 5px center;cursor:pointer}
+.vqid-sec{margin:10px 14px 0}
+.vqid-head{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:12px;font-weight:600}
+.vqid-tag{display:inline-flex;align-items:center;gap:4px;background:var(--tag-bg);color:var(--tag-t);border-radius:4px;padding:2px 8px;font-size:11px;font-weight:500}
+.vqid-info{margin-left:auto;font-size:10px;color:var(--t3)}
+.vcogs{margin:8px 14px}
+.vcogs-tbl{width:100%;border-collapse:collapse;font-size:11px}
+.vcogs-tbl th{text-align:left;padding:5px 7px;border-bottom:1px solid var(--border);color:var(--t3);font-weight:500;font-size:10px;text-transform:uppercase;letter-spacing:.3px;white-space:nowrap}
+.vcogs-tbl td{padding:6px 7px;border-bottom:1px solid var(--border);color:var(--t1);vertical-align:middle}
+.vcogs-tbl tr:hover td{background:#fafbfd}
+.vcogs-tbl tr.vhl td{background:#FEF0E9;border-left:3px solid var(--orange)}
+.vcogs-tbl tr.vhl .vcname{color:var(--orange)}
+.vcname{font-weight:500}
+.vbadge{font-size:9px;font-weight:600;padding:1px 4px;border-radius:3px;margin-left:3px;vertical-align:middle}
+.vbr{background:#E6F1FB;color:#185FA5}.vba{background:#FEF0E9;color:#c04f0a}
+.vrem{color:var(--orange);font-weight:600}
+.valloc-btn{background:none;border:none;cursor:pointer;font-size:15px;color:var(--t3);line-height:1;padding:2px}
+.valloc-btn:hover{color:var(--orange)}
+.vprog{margin:8px 14px;border:1px solid var(--border);border-radius:var(--rl);background:var(--white);overflow:hidden}
+.vprog-head{display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--border)}
+.vpc{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .4s}
+.vpc.inc{background:#FEF0E9;border:2px solid var(--orange)}
+.vpc.comp{background:var(--ok-bg);border:2px solid var(--ok-b)}
+.vpc svg{width:14px;height:14px;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.vpamt{font-size:13px;font-weight:600}.vplbl{font-size:11px;color:var(--t2)}
+.vpstat{margin-left:auto;font-size:11px;font-weight:500;padding:2px 9px;border-radius:100px}
+.vpstat.inp{background:#FEF0E9;color:var(--orange)}.vpstat.comp{background:var(--ok-bg);color:var(--ok-t)}
+.vpbar-wrap{height:4px;background:#F0F2F7}
+.vpbar{height:4px;background:var(--orange);width:0%;transition:width .7s ease}
+.vpbar.full{background:var(--ok-b)}
+.vpcols{display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid var(--border)}
+.vpcol{padding:8px 12px;border-right:1px solid var(--border)}
+.vpcol:last-child{border-right:none}
+.vpclbl{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.3px;margin-bottom:3px}
+.vpctxt{font-size:12px;font-weight:600;color:var(--t1)}
+.vpctxt.ora{color:var(--orange)}.vpctxt.red{color:#E24B4A}
+.vmap-sec{margin:8px 14px;border:1px solid var(--border);border-radius:var(--rl);background:var(--white);padding:10px 12px}
+.vmap-head{font-size:12px;font-weight:500;margin-bottom:7px;display:flex;justify-content:space-between;align-items:center}
+.vmap-tags{display:flex;flex-wrap:wrap;gap:5px}
+.vmap-tag{display:inline-flex;align-items:center;gap:4px;background:var(--tag-bg);color:var(--tag-t);border-radius:4px;padding:3px 8px;font-size:11px;font-weight:500}
+.vrem-sec{margin:8px 14px;border:1px solid var(--border);border-radius:var(--rl);background:var(--white);padding:10px 12px}
+.vrem-head{font-size:12px;font-weight:500;margin-bottom:8px}
+.vrem-inp{width:100%;padding:7px 9px;border:1px solid var(--border);border-radius:var(--r);font-size:12px;font-family:inherit;outline:none;color:var(--t1);resize:none}
+.vrem-inp:focus{border-color:var(--orange)}
+.vbottom{border-top:1px solid var(--border);background:var(--white);padding:10px 14px;display:flex;align-items:center;gap:9px;flex-shrink:0}
+.vwarn{font-size:11px;color:#B45309;background:#FFF4E0;padding:6px 11px;border-radius:var(--r);border:1px solid #FCD34D;flex:1}
+.vwarn.hide{display:none}
+.vbtn-approve{padding:8px 20px;background:var(--orange);color:#fff;border:none;border-radius:var(--r);font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;transition:all .15s;opacity:.45;pointer-events:none}
+.vbtn-approve.on{opacity:1;pointer-events:auto}.vbtn-approve.on:hover{background:var(--orange-dk)}
+.vbtn-approve.done{background:var(--ok-t);opacity:1;pointer-events:none}
+.vbtn-dis{padding:8px 14px;background:var(--white);color:#E24B4A;border:1px solid #E24B4A;border-radius:var(--r);font-size:12px;font-weight:500;cursor:pointer;font-family:inherit}
+.vbtn-inv{padding:8px 14px;background:var(--white);color:var(--t2);border:1px solid var(--border);border-radius:var(--r);font-size:12px;cursor:pointer;font-family:inherit}
+@keyframes vhl-pulse{0%{background:#fff}40%{background:#FEF0E9}100%{background:#FEF0E9}}
+.vhl-anim{animation:vhl-pulse 1s ease forwards}
+
+/* ══ PAYMENT SCREEN ══ */
+.pscreen{display:none;flex-direction:column;height:calc(100vh - 44px)}
+.pscreen.active{display:flex}
+.pbody{flex:1;overflow-y:auto;padding:24px;display:flex;flex-direction:column;gap:14px;max-width:800px;margin:0 auto;width:100%}
+.paid-banner{background:var(--ok-bg);border:1px solid var(--ok-b);border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:9px;opacity:0;transition:opacity .5s}
+.paid-banner.show{opacity:1}
+.paid-banner svg{width:16px;height:16px;stroke:var(--ok-t);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.paid-banner-txt{font-size:12px;color:var(--ok-t);font-weight:500}
+.pcard{background:var(--white);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden}
+.pcard-head{padding:11px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.pcard-title{font-size:13px;font-weight:600;color:var(--t1)}
+.paid-dot{font-size:11px;font-weight:500;padding:2px 8px;border-radius:100px;background:var(--ok-bg);color:var(--ok-t);opacity:0;transition:opacity .5s}
+.paid-dot.show{opacity:1}
+.psum-row{display:flex;align-items:center;justify-content:space-between;padding:7px 16px;border-bottom:1px solid var(--border);font-size:12px}
+.psum-row:last-child{border-bottom:none}
+.psum-k{color:var(--t2)}.psum-v{color:var(--t1);font-weight:500;text-align:right}
+.psum-v.big{font-size:14px;font-weight:700}
+.psum-v.link{color:var(--tag-t);cursor:pointer}
+.pval-tbl{width:100%;border-collapse:collapse;font-size:12px}
+.pval-tbl th{text-align:left;padding:7px 16px;border-bottom:1px solid var(--border);color:var(--t3);font-weight:500;font-size:10px;text-transform:uppercase;letter-spacing:.3px}
+.pval-tbl td{padding:7px 16px;border-bottom:1px solid var(--border);color:var(--t1)}
+.pval-tbl tr:last-child td{border-bottom:none}
+.pval-alloc{color:var(--orange);font-weight:600}
+.pdet-grid{display:grid;gap:12px;padding:14px 16px}
+.pdet-grid.g2{grid-template-columns:1fr 1fr}
+.pdet-grid.g3{grid-template-columns:1fr 1fr 1fr}
+.pdet-lbl{font-size:11px;color:var(--t2);font-weight:500;margin-bottom:4px}
+.pdet-lbl .req{color:#E24B4A}
+.pdet-inp{width:100%;padding:6px 9px;border:1px solid var(--border);border-radius:var(--r);font-size:12px;font-family:inherit;color:var(--t1);background:var(--white);outline:none;transition:border-color .15s}
+.pdet-inp:focus{border-color:var(--orange);box-shadow:0 0 0 3px rgba(242,101,34,.12)}
+.pdet-inp::placeholder{color:var(--t3)}
+.pdet-inp.filled{background:var(--lock-bg);color:var(--t1);border-color:var(--border)}
+.pdet-inp.webhook{border-color:var(--ok-b);background:#F0FBF4;transition:all .4s}
+.pcurr-wrap{display:flex;gap:5px}
+.pcurr{padding:6px 8px;border:1px solid var(--border);border-radius:var(--r);font-size:12px;font-family:inherit;color:var(--t2);background:var(--white);outline:none;appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%236B7A99' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 5px center;padding-right:20px}
+.premark-area{width:100%;padding:9px 11px;border:1px solid var(--border);border-radius:var(--r);font-size:12px;font-family:inherit;color:var(--t2);resize:none;outline:none;line-height:1.6}
+.premark-area:focus{border-color:var(--orange)}
+.psave-bar{display:flex;gap:8px;justify-content:flex-end;padding:10px 16px;border-top:1px solid var(--border)}
+.psave-btn{padding:7px 18px;background:var(--orange);color:#fff;border:none;border-radius:var(--r);font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;transition:background .15s}
+.psave-btn:hover{background:var(--orange-dk)}
+.webhook-banner{background:#EDF3FF;border:1px solid #93C5FD;border-radius:var(--r);padding:9px 12px;font-size:11px;color:var(--tag-t);font-weight:500;display:flex;align-items:center;gap:7px;opacity:0;transition:opacity .4s;margin:0 16px 0}
+.webhook-banner.show{opacity:1}
+.webhook-banner svg{width:13px;height:13px;stroke:var(--tag-t);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;animation:spin 1.2s linear infinite}
+.webhook-banner.done svg{animation:none;stroke:var(--ok-t)}
+.webhook-banner.done{background:var(--ok-bg);border-color:var(--ok-b);color:var(--ok-t)}
+
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════
+     SCREEN A: PAYABLES LIST
+══════════════════════════════════ -->
+<div id="screenList" class="screen active">
+  <div class="topbar">
+    <span class="logo">XAP</span>
+    <span class="sep">|</span>
+    <span class="pg-title">Payables</span>
+    <div class="ml" style="display:flex;gap:8px;align-items:center">
+      <button class="btn-s" style="font-size:12px;padding:5px 10px">
+        <svg class="icosvg" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </button>
+      <button class="btn-p" onclick="openAddNew()">
+        <svg class="icosvg" style="stroke:#fff" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add New
+      </button>
+      <button class="btn-s" style="padding:5px 8px">
+        <svg class="icosvg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="filters">
+    <input class="filter-inp" placeholder="Search...">
+    <select class="filter-sel"><option>Status</option><option>Mapped</option><option>Parsed</option><option>Pending</option><option>Validated</option></select>
+    <select class="filter-sel"><option>Vendor</option><option>Fast Freight</option><option>Jumingo</option><option>Royal</option></select>
+    <select class="filter-sel"><option>Entity</option><option>First Shipment</option><option>Holaport</option></select>
+    <select class="filter-sel"><option>POC</option><option>Aiswarya K S</option><option>Pooja B</option><option>Vidya H S</option></select>
+    <input class="filter-inp" placeholder="mm/dd/yyyy" style="width:110px">
+    <span style="font-size:12px;color:var(--t3)">to</span>
+    <input class="filter-inp" placeholder="mm/dd/yyyy" style="width:110px">
+  </div>
+
+  <div class="tbl-wrap">
+    <table class="ptbl">
+      <thead>
+        <tr>
+          <th>Invoice #</th>
+          <th>Vendor</th>
+          <th>Amount</th>
+          <th>Status</th>
+          <th>POC</th>
+          <th>Ageing</th>
+          <th>Due</th>
+        </tr>
+      </thead>
+      <tbody id="payTbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     SCREEN B: CC INVOICE CREATION
+══════════════════════════════════ -->
+<div id="screenCC" class="screen">
+  <div class="topbar">
+    <span class="logo">XAP</span>
+    <span class="sep">|</span>
+    <span class="pg-title" id="ccHdrInv">INV-CC-00422</span>
+    <span class="nav-sub-cc" id="ccHdrVendor"></span>
+    <span class="nav-badge-cc">Credit Card</span>
+    <span style="font-size:11px;color:var(--t3)">0d</span>
+    <div class="ml" style="display:flex;gap:8px">
+      <button class="btn-retrig" onclick="handleRetrig()">
+        <svg class="icosvg" viewBox="0 0 24 24"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
+        Retrigger AP
+      </button>
+      <button class="btn-zoho" id="zohoBtn" onclick="handleZoho()">
+        <svg class="icosvg" id="zohoIco" viewBox="0 0 24 24"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
+        <span id="zohoLbl">Zoho Bill</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="stepper">
+    <div class="step done"><span class="sdot">&#10003;</span>Add New</div>
+    <span class="sarr">&#8250;</span>
+    <div class="step active"><span class="sdot">2</span>Create Invoice</div>
+    <span class="sarr">&#8250;</span>
+    <div class="step"><span class="sdot">3</span>Validate</div>
+    <span class="sarr">&#8250;</span>
+    <div class="step"><span class="sdot">4</span>Approval</div>
+    <span class="sarr">&#8250;</span>
+    <div class="step"><span class="sdot">5</span>Payment</div>
+  </div>
+
+  <div class="cc-main">
+    <div class="lpanel">
+      <div class="proof-icon">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="15" x2="15" y2="15"/><line x1="12" y1="12" x2="12" y2="18"/><line x1="3" y1="3" x2="21" y2="21" stroke="#E24B4A"/></svg>
+      </div>
+      <div style="font-size:13px;font-weight:500;color:var(--t2)">No Payment Proof Uploaded Yet</div>
+      <div style="font-size:11px;color:var(--t3);line-height:1.6;max-width:190px">A payment slip can be attached here after the payment is made.</div>
+    </div>
+
+    <div class="rpanel">
+      <div class="fgrid g3">
+        <div>
+          <div class="flabel">Invoice number</div>
+          <div class="flocked">INV-CC-00422</div>
+        </div>
+        <div>
+          <div class="flabel">Vendor <span class="req">*</span></div>
+          <div class="ddown-wrap">
+            <input id="fVendor" class="finput" placeholder="Search vendor..." autocomplete="off" oninput="filterVendors()" onfocus="filterVendors()" onblur="closeVendorDD()">
+            <div class="ddown" id="vendorDD"></div>
+          </div>
+        </div>
+        <div>
+          <div class="flabel">Payment entity</div>
+          <select class="fsel" id="fEntity"><option>First Shipment</option><option>Holaport</option><option>Other</option></select>
+        </div>
+      </div>
+
+      <div>
+        <div class="flabel" style="margin-bottom:5px">Invoice type</div>
+        <div class="tpills">
+          <span class="tpill on">Non-tax</span>
+          <span class="tpill off">Duty+</span>
+          <span class="tpill off">Tax+</span>
+        </div>
+      </div>
+
+      <div class="fgrid g6">
+        <div>
+          <div class="flabel">Total invoice amount <span class="req">*</span></div>
+          <input id="fAmount" class="finput" type="number" placeholder="0.00" oninput="updateTotal()">
+        </div>
+        <div><div class="flabel">Tax</div><div class="flocked">0</div></div>
+        <div><div class="flabel">Duty</div><div class="flocked">0</div></div>
+        <div><div class="flabel">Discount</div><div class="flocked">0</div></div>
+        <div><div class="flabel">TDS</div><div class="flocked">0</div></div>
+        <div>
+          <div class="flabel">Currency</div>
+          <select class="fsel" id="fCurr" onchange="syncCurr()"><option>USD</option><option>INR</option><option>EUR</option><option>GBP</option></select>
+        </div>
+      </div>
+
+      <div class="fgrid g3">
+        <div><div class="flabel">Invoice date</div><div class="flocked" id="fIdate"></div></div>
+        <div><div class="flabel">Due date</div><div class="flocked" id="fDdate"></div></div>
+        <div><div class="flabel">Received</div><div class="flocked" id="fRdate"></div></div>
+      </div>
+
+      <div class="scard">
+        <div class="shead">
+          <div class="stitle">
+            <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            Vendor billing entity
+          </div>
+        </div>
+        <div class="fgrid g2">
+          <div>
+            <div class="flabel">Billing name</div>
+            <select class="fsel" id="fBilling" onchange="updateMatched()">
+              <option value="">Select billing entity</option>
+              <option>Hind Terminals Pvt Ltd</option>
+              <option>JNPT Port Authority</option>
+              <option>Mundra Port Limited</option>
+              <option>Chennai Port Trust</option>
+            </select>
+          </div>
+          <div>
+            <div class="flabel">Matched entity</div>
+            <div class="flocked" id="fMatched">Auto-fetched on selection</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="scard">
+        <div class="shead">
+          <div class="stitle">
+            <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+            Line items
+          </div>
+          <button class="add-row" onclick="addRow()">+ Add row</button>
+        </div>
+        <table class="litbl">
+          <thead>
+            <tr>
+              <th style="width:22px">#</th>
+              <th>Description</th>
+              <th style="width:48px">Qty</th>
+              <th style="width:76px">Rate</th>
+              <th style="width:76px">Amount</th>
+              <th style="width:48px">Curr.</th>
+              <th style="width:130px">QID</th>
+              <th style="width:22px"></th>
+            </tr>
+          </thead>
+          <tbody id="liBody"></tbody>
+        </table>
+        <div class="li-total" id="liTotal"></div>
+      </div>
+
+      <div class="scard">
+        <div class="shead">
+          <div class="stitle">
+            <svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+            Map QIDs
+          </div>
+        </div>
+        <div class="qtabs">
+          <button class="qtab on" onclick="setQTab(this)">QID</button>
+          <button class="qtab" onclick="setQTab(this)">Container</button>
+          <button class="qtab" onclick="setQTab(this)">Consol</button>
+          <button class="qtab" onclick="setQTab(this)">Vendor ref</button>
+        </div>
+        <div class="qtags" id="qtags"></div>
+        <div class="qsugg-wrap">
+          <input id="qInput" class="finput" placeholder="e.g. QID-12345" oninput="showQSugg()" onblur="closeQSugg()">
+          <div class="qsugg" id="qSugg"></div>
+        </div>
+      </div>
+
+      <div class="cta-bar">
+        <button class="btn-s" onclick="handleSave()">Save</button>
+        <button class="btn-p" onclick="handleContinue()">Continue to Validate &rarr;</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SCREEN C: VALIDATE ══ -->
+<div id="screenValidate" class="vscreen">
+  <div class="topbar">
+    <span class="logo">XAP</span>
+    <span class="sep">|</span>
+    <span class="pg-title">INV-CC-00422</span>
+    <span style="font-size:12px;color:var(--t2)">Hind Terminals Pvt Ltd</span>
+    <span style="font-size:11px;font-weight:500;padding:2px 8px;border-radius:100px;background:#EDF3FF;color:#2952A3">Credit Card</span>
+    <span style="font-size:11px;color:var(--t3)">0-7d</span>
+    <div class="ml" style="display:flex;gap:8px">
+      <button class="btn-retrig"><svg class="icosvg" viewBox="0 0 24 24"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>Retrigger AP</button>
+      <button class="btn-zoho" id="vzBtn" onclick="handleVZoho()"><svg class="icosvg" id="vzIco" viewBox="0 0 24 24"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg><span id="vzLbl">Zoho Bill</span></button>
+    </div>
+  </div>
+  <div class="vstep-bar">
+    <div class="vstep done"><span class="vsdot">&#10003;</span>Add New</div><span class="vsarr">&#8250;</span>
+    <div class="vstep done"><span class="vsdot">&#10003;</span>Create Invoice</div><span class="vsarr">&#8250;</span>
+    <div class="vstep active"><span class="vsdot">3</span>Validate</div><span class="vsarr">&#8250;</span>
+    <div class="vstep"><span class="vsdot">4</span>Approval</div><span class="vsarr">&#8250;</span>
+    <div class="vstep"><span class="vsdot">5</span>Payment</div>
+  </div>
+  <div class="vbody">
+    <div class="vdoc">
+      <div class="vdoc-notice">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="15" x2="15" y2="15"/><line x1="12" y1="12" x2="12" y2="18"/><line x1="3" y1="3" x2="21" y2="21" stroke="#E24B4A"/></svg>
+        <div style="font-size:12px;font-weight:500;color:var(--t2);margin-bottom:3px">No Payment Proof Yet</div>
+        <div style="font-size:11px;color:var(--t3)">A slip will be attached after payment.</div>
+      </div>
+      <div class="vdoc-card">
+        <div class="vdoc-title">Credit Card Payment Record</div>
+        <div class="vdoc-kv"><span class="vdoc-k">Invoice No.</span><span class="vdoc-v">INV-CC-00422</span></div>
+        <div class="vdoc-kv"><span class="vdoc-k">Vendor</span><span class="vdoc-v">Hind Terminals Pvt Ltd</span></div>
+        <div class="vdoc-kv"><span class="vdoc-k">Entity</span><span class="vdoc-v">First Shipment</span></div>
+        <div class="vdoc-kv"><span class="vdoc-k">Currency</span><span class="vdoc-v">USD</span></div>
+        <div class="vdoc-kv"><span class="vdoc-k">Type</span><span class="vdoc-v">Non-tax</span></div>
+        <div class="vdoc-kv"><span class="vdoc-k">Date</span><span class="vdoc-v" id="vdocDate"></span></div>
+        <hr style="border:none;border-top:1px solid var(--border);margin:8px 0">
+        <div style="display:grid;grid-template-columns:1fr 60px 80px 80px;gap:4px;font-size:10px;color:var(--t3);padding:4px 0;border-bottom:1px solid var(--border)">
+          <span>Description</span><span>Qty</span><span>Rate</span><span style="text-align:right">Amount</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 60px 80px 80px;gap:4px;font-size:11px;padding:6px 0;color:var(--orange);font-weight:500">
+          <span>Detention Fee</span><span>1</span><span>2,400.00</span><span style="text-align:right;font-weight:700">USD 2,400.00</span>
+        </div>
+        <div style="text-align:right;font-size:12px;font-weight:700;padding-top:4px;border-top:1px solid var(--border)">Total: USD 2,400.00</div>
+      </div>
+    </div>
+    <div class="vpanel">
+      <div class="vfilterbar">
+        <div class="vsearch-wrap">
+          <svg class="vsearch-ico" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="vsearch" placeholder="Search charge...">
+        </div>
+        <select class="vfsel"><option>All Legs</option><option>Origin</option><option>Destination</option><option>Port to Port</option></select>
+        <select class="vfsel"><option>All Types</option><option>RUN</option><option>ACC</option></select>
+        <select class="vfsel"><option>All Vendors</option><option>Hind Terminals</option><option>Xhipment</option></select>
+        <button style="margin-left:auto;font-size:11px;color:var(--orange);font-weight:500;background:none;border:none;cursor:pointer;font-family:inherit">+ Credit Notes</button>
+      </div>
+      <div class="vqid-sec">
+        <div class="vqid-head">
+          <span>XQFCL062621269</span>
+          <span class="vqid-tag">QID</span>
+          <span class="vqid-info">COGS: USD 5,677.37 &nbsp;|&nbsp; <span style="color:var(--orange);font-weight:600">Alloc: USD 2,400.00</span></span>
+        </div>
+      </div>
+      <div class="vcogs">
+        <table class="vcogs-tbl" id="vcogsTable">
+          <thead><tr>
+            <th style="width:200px">Charge name</th>
+            <th style="width:110px">Vendor</th>
+            <th style="width:80px">Leg</th>
+            <th style="width:80px">Cost</th>
+            <th style="width:80px">Validated</th>
+            <th style="width:80px">Remaining</th>
+            <th style="width:80px">Allocated</th>
+            <th style="width:28px"></th>
+          </tr></thead>
+          <tbody id="vcogsTbody"></tbody>
+        </table>
+      </div>
+      <div class="vprog">
+        <div class="vprog-head">
+          <div class="vpc inc" id="vpc">
+            <svg id="vpcIco" style="stroke:var(--orange)" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <div>
+            <div class="vpamt">USD 2,400.00</div>
+            <div class="vplbl">of USD 2,400.00 &nbsp; <span id="vplbl2">Complete remaining amount</span></div>
+          </div>
+          <span class="vpstat inp" id="vpstat">In Progress</span>
+        </div>
+        <div class="vpbar-wrap"><div class="vpbar" id="vpbar"></div></div>
+        <div class="vpcols">
+          <div class="vpcol"><div class="vpclbl">Invoice</div><div class="vpctxt">USD 2,400.00</div></div>
+          <div class="vpcol"><div class="vpclbl">Credit notes</div><div class="vpctxt">&#8212;</div></div>
+          <div class="vpcol"><div class="vpclbl">To be validated</div><div class="vpctxt">USD 2,400.00</div></div>
+          <div class="vpcol"><div class="vpclbl">Allocated</div><div class="vpctxt ora" id="vpcAlloc">USD 0.00</div></div>
+          <div class="vpcol"><div class="vpclbl">Remaining</div><div class="vpctxt red" id="vpcRem">USD 2,400.00</div></div>
+        </div>
+      </div>
+      <div class="vmap-sec">
+        <div class="vmap-head">Mapped QIDs <button style="font-size:11px;color:var(--orange);background:none;border:none;cursor:pointer;font-family:inherit">Edit</button></div>
+        <div class="vmap-tags"><span class="vmap-tag">XQFCL062621269</span></div>
+      </div>
+      <div class="vrem-sec">
+        <div class="vrem-head">Remarks</div>
+        <div style="border-left:3px solid #FAC775;padding:6px 10px;background:#FFFBF0;border-radius:0 4px 4px 0;margin-bottom:8px;font-size:11px;color:var(--t2);line-height:1.6">
+          <span style="color:#B45309;font-weight:500">Credit card payment recorded.</span> Detention fee for container held at Hind Terminals beyond free days. QID: XQFCL062621269.
+        </div>
+        <textarea class="vrem-inp" rows="2" placeholder="Add an additional remark..."></textarea>
+      </div>
+      <div class="vbottom">
+        <span class="vwarn" id="vwarn">Validation must be 100% complete before sending for approval</span>
+        <button class="vbtn-dis">Dispute</button>
+        <button class="vbtn-inv">Invalid</button>
+        <button class="vbtn-approve" id="vbtnApprove" onclick="handleVApprove()">Send For Approval</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SCREEN D: PAYMENT ══ -->
+<div id="screenPayment" class="pscreen">
+  <div class="topbar">
+    <span class="logo">XAP</span>
+    <span class="sep">|</span>
+    <span class="pg-title">INV-CC-00422</span>
+    <span style="font-size:12px;color:var(--t2)">Hind Terminals Pvt Ltd</span>
+    <span style="font-size:11px;font-weight:500;padding:2px 8px;border-radius:100px;background:var(--ok-bg);color:var(--ok-t)" id="payNavBadge">Approved</span>
+    <span style="font-size:11px;color:var(--t3)">0-7d</span>
+    <div class="ml" style="display:flex;gap:8px">
+      <button class="btn-zoho"><svg class="icosvg" viewBox="0 0 24 24"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>Zoho Bill</button>
+    </div>
+  </div>
+  <div class="vstep-bar">
+    <div class="vstep done"><span class="vsdot">&#10003;</span>Add New</div><span class="vsarr">&#8250;</span>
+    <div class="vstep done"><span class="vsdot">&#10003;</span>Create Invoice</div><span class="vsarr">&#8250;</span>
+    <div class="vstep done"><span class="vsdot">&#10003;</span>Validate</div><span class="vsarr">&#8250;</span>
+    <div class="vstep done"><span class="vsdot">&#10003;</span>Approval</div><span class="vsarr">&#8250;</span>
+    <div class="vstep active"><span class="vsdot">5</span>Payment</div>
+  </div>
+  <div class="pbody">
+    <div class="paid-banner" id="paidBanner">
+      <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+      <span class="paid-banner-txt" id="paidBannerTxt">Invoice Paid</span>
+    </div>
+    <div class="pcard">
+      <div class="pcard-head">
+        <span class="pcard-title">Invoice Summary</span>
+        <span class="paid-dot" id="paidDot">Paid</span>
+      </div>
+      <div class="psum-row"><span class="psum-k">Invoice Number</span><span class="psum-v">INV-CC-00422</span></div>
+      <div class="psum-row"><span class="psum-k">Vendor</span><span class="psum-v">Hind Terminals Pvt Ltd</span></div>
+      <div class="psum-row"><span class="psum-k">Payment Entity</span><span class="psum-v">FIRST-SHIPMENT</span></div>
+      <div class="psum-row"><span class="psum-k">Gross Amount</span><span class="psum-v big">USD 2,400.00</span></div>
+      <div class="psum-row"><span class="psum-k">Invoice Type</span><span class="psum-v">Non-tax</span></div>
+      <div class="psum-row"><span class="psum-k">Due Date</span><span class="psum-v" id="pDueDate"></span></div>
+      <div class="psum-row"><span class="psum-k">Mapped QIDs</span><span class="psum-v link">XQFCL062621269</span></div>
+      <div class="psum-row" style="align-items:flex-start"><span class="psum-k">TC Remark</span><span class="psum-v" style="font-size:11px;color:var(--t2);max-width:360px;text-align:right;line-height:1.5">Credit card payment recorded. Detention fee for container at Hind Terminals beyond free days.</span></div>
+    </div>
+    <div class="pcard">
+      <div class="pcard-head"><span class="pcard-title">Validation</span></div>
+      <table class="pval-tbl">
+        <thead><tr><th>QID</th><th>Charge</th><th>Leg</th><th style="text-align:right">Allocated</th></tr></thead>
+        <tbody>
+          <tr>
+            <td style="font-size:11px;color:var(--tag-t);font-weight:500">XQFCL062621269</td>
+            <td style="font-weight:500;color:var(--orange)">Detention Fee</td>
+            <td style="color:var(--t2)">Destination</td>
+            <td style="text-align:right" class="pval-alloc">USD 2,400.00</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="pcard">
+      <div class="pcard-head"><span class="pcard-title">Payment Details</span></div>
+      <div class="webhook-banner" id="webhookBanner">
+        <svg viewBox="0 0 24 24"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
+        <span id="webhookTxt">Receiving Zoho Books webhook...</span>
+      </div>
+      <div class="pdet-grid g2" style="margin-top:4px">
+        <div>
+          <div class="pdet-lbl">UTR <span class="req">*</span></div>
+          <input class="pdet-inp" id="pUTR" placeholder="Awaiting webhook from Zoho Books" readonly>
+        </div>
+        <div>
+          <div class="pdet-lbl">Payment Date</div>
+          <input class="pdet-inp" id="pDate" placeholder="Awaiting webhook" readonly>
+        </div>
+      </div>
+      <div class="pdet-grid g3" style="padding-top:0">
+        <div>
+          <div class="pdet-lbl">Amount Paid <span class="req">*</span></div>
+          <div class="pcurr-wrap">
+            <select class="pcurr" id="pCurr"><option>USD</option><option>INR</option><option>EUR</option></select>
+            <input class="pdet-inp" id="pAmt" placeholder="Awaiting webhook" style="flex:1" readonly>
+          </div>
+        </div>
+        <div>
+          <div class="pdet-lbl">TDS Withheld</div>
+          <div class="pcurr-wrap">
+            <select class="pcurr"><option>USD</option><option>INR</option></select>
+            <input class="pdet-inp" id="pTDS" placeholder="Optional" style="flex:1" readonly>
+          </div>
+        </div>
+        <div>
+          <div class="pdet-lbl">Transfer Fees</div>
+          <div class="pcurr-wrap">
+            <select class="pcurr"><option>USD</option><option>INR</option></select>
+            <input class="pdet-inp" id="pFees" placeholder="Optional" style="flex:1" readonly>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pcard">
+      <div class="pcard-head"><span class="pcard-title">Remarks</span></div>
+      <div style="padding:12px 14px">
+        <textarea class="premark-area" rows="3" id="pRemarks">Credit card payment recorded. Detention fee for container held at Hind Terminals beyond free days. QID: XQFCL062621269.</textarea>
+      </div>
+      <div class="psave-bar">
+        <button class="psave-btn" onclick="handlePSave()">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     MODAL 1: ADD NEW CHOICE
+══════════════════════════════════ -->
+<div class="overlay" id="ovAddNew">
+  <div class="modal" style="width:460px">
+    <div class="modal-head">
+      <span class="modal-title">Add New Invoice</span>
+      <button class="modal-close" onclick="closeModal('ovAddNew')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div style="font-size:12px;color:var(--t2);margin-bottom:14px">Choose how you want to record this payment.</div>
+      <div class="choice-grid">
+        <div class="choice-card choice-a" onclick="openUploadModal()">
+          <div class="choice-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="stroke:#2952A3;width:22px;height:22px"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+          </div>
+          <div class="choice-label">With Invoice</div>
+          <div class="choice-sub">Upload a vendor invoice PDF. The system will parse and process it automatically.</div>
+        </div>
+        <div class="choice-card choice-b" onclick="openCCScreen()">
+          <div class="choice-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="stroke:var(--orange);width:22px;height:22px"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          </div>
+          <div class="choice-label">Credit Card</div>
+          <div class="choice-sub">No invoice yet. Record a detention, demurrage or terminal fee paid by credit card.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     MODAL 2: UPLOAD INVOICES (Option A)
+══════════════════════════════════ -->
+<div class="overlay" id="ovUpload">
+  <div class="modal">
+    <div class="modal-head">
+      <span class="modal-title">Upload Invoices</span>
+      <button class="modal-close" onclick="closeModal('ovUpload')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="upload-tabs">
+        <div class="utab on">Known Vendor</div>
+        <div class="utab">Email Simulator</div>
+      </div>
+      <div style="margin-bottom:10px">
+        <div class="flabel" style="margin-bottom:5px">Vendor</div>
+        <select class="fsel">
+          <option value="">Select vendor</option>
+          <option>Fast Freight</option>
+          <option>Jumingo</option>
+          <option>Royal</option>
+          <option>Shootin Logistics</option>
+          <option>ICT</option>
+        </select>
+        <div style="font-size:11px;color:var(--t3);margin-top:5px">Uploaded invoices will use the selected vendor and be processed by AP Bot in the background.</div>
+      </div>
+      <div class="upload-zone" onclick="this.querySelector('input').click()">
+        <input type="file" accept=".pdf" multiple style="display:none" onchange="handleFiles(this)">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <p id="uploadZoneText">Add PDF Invoices to upload</p>
+      </div>
+      <div class="upload-footer">
+        <label class="choose-btn" style="cursor:pointer">
+          Choose files
+          <input type="file" accept=".pdf" multiple style="display:none" onchange="handleFiles(this)">
+        </label>
+        <span style="font-size:12px;color:var(--t3)">Or drop PDF files here</span>
+        <button class="btn-p" onclick="handleUpload()">Upload</button>
+        <span class="upload-meta" id="uploadMeta">0 files &bull; 0 B</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<button class="demo-float" id="demoBtn" onclick="runDemo()">
+  <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+  Watch demo fill
+</button>
+
+<script>
+/* ── DATA ── */
+var VENDORS=[{name:'Hind Terminals Pvt Ltd',code:'HIND-001',type:'Terminal'},{name:'JNPT Port Authority',code:'JNPT-002',type:'Port'},{name:'Mundra Port Limited',code:'MUND-003',type:'Port'},{name:'Chennai Port Trust',code:'CHPT-004',type:'Port'},{name:'Gateway Terminals India',code:'GTI-005',type:'Terminal'},{name:'DP World Nhava Sheva',code:'DPNS-006',type:'Terminal'}];
+var QIDS=[{id:'XQFCL062621269',sub:'FCL | Shanghai to Chennai'},{id:'XQFCL062700341',sub:'FCL | Nhava Sheva inbound'},{id:'XQAIR052200118',sub:'Air | Delhi to Frankfurt'},{id:'XQLCL071800229',sub:'LCL | Mundra outbound'}];
+var ENTITY_MAP={'Hind Terminals Pvt Ltd':'Hind Terminals Pvt Ltd (IN - INR)','JNPT Port Authority':'JNPT Port Authority (IN - INR)','Mundra Port Limited':'Mundra Port Limited (IN - INR)','Chennai Port Trust':'Chennai Port Trust (IN - INR)'};
+var ROWS=[
+  {inv:'12406',vendor:'Fast Freight',amt:'USD 1,680.00',status:'Mapped',poc:'Aiswarya K S',age:'0-7d',due:'Jul 11, 2026'},
+  {inv:'12388',vendor:'Fast Freight',amt:'USD 1,550.00',status:'Mapped',poc:'Aiswarya K S',age:'0-7d',due:'Jul 11, 2026'},
+  {inv:'12484',vendor:'Fast Freight',amt:'USD 1,543.50',status:'Parsed',poc:'Aiswarya K S',age:'0-7d',due:'Jul 10, 2026'},
+  {inv:'12215',vendor:'Fast Freight',amt:'USD 1,860.00',status:'Parsed',poc:'Aiswarya K S',age:'0-7d',due:'Jul 10, 2026'},
+  {inv:'12282',vendor:'Fast Freight',amt:'USD 2,032.00',status:'Parsed',poc:'Aiswarya K S',age:'0-7d',due:'Jul 10, 2026'},
+  {inv:'12407',vendor:'Fast Freight',amt:'USD 1,550.00',status:'Pending',poc:'Aiswarya K S',age:'0-7d',due:'Jul 10, 2026'},
+  {inv:'12214',vendor:'Fast Freight',amt:'USD 2,405.00',status:'Pending',poc:'Aiswarya K S',age:'0-7d',due:'Jul 10, 2026'},
+  {inv:'12356',vendor:'Fast Freight',amt:'USD 1,620.00',status:'Parsed',poc:'Aiswarya K S',age:'0-7d',due:'Jul 10, 2026'},
+  {inv:'1824',vendor:'Shootin Logistics',amt:'USD 1,841.25',status:'Validated',poc:'Vidya H S',age:'0-7d',due:'Jul 06, 2026'},
+  {inv:'7A760144',vendor:'ICT',amt:'EUR 10.00',status:'Parsed',poc:'Pooja B',age:'0-7d',due:''},
+  {inv:'N-260611195392',vendor:'Jumingo',amt:'EUR 14.64',status:'Parsed',poc:'Pooja B',age:'0-7d',due:''},
+  {inv:'N-260611195405',vendor:'Jumingo',amt:'EUR 14.64',status:'Parsed',poc:'Pooja B',age:'0-7d',due:''},
+  {inv:'N-260611195384',vendor:'Jumingo',amt:'EUR 14.64',status:'Parsed',poc:'Pooja B',age:'0-7d',due:''},
+  {inv:'RCL2627E495',vendor:'Royal',amt:'INR 3,148.00',status:'Parsed',poc:'Pooja B',age:'0-7d',due:''},
+  {inv:'RCL2627E493',vendor:'Royal',amt:'INR 3,132.00',status:'Parsed',poc:'Pooja B',age:'0-7d',due:''},
+  {inv:'RCL2627E494',vendor:'Royal',amt:'INR 3,129.00',status:'Parsed',poc:'Pooja B',age:'0-7d',due:''},
+  {inv:'RCL2627E209',vendor:'Royal',amt:'INR 1,169.00',status:'Parsed',poc:'Pooja B',age:'0-7d',due:'Jun 06, 2026'},
+  {inv:'RCL2627E208',vendor:'Royal',amt:'INR 1,169.00',status:'Parsed',poc:'Pooja B',age:'0-7d',due:'Jun 06, 2026'},
+  {inv:'RCL2627E210',vendor:'Royal',amt:'INR 1,401.00',status:'Pending',poc:'Pooja B',age:'0-7d',due:'Jun 06, 2026'},
+];
+
+var STATUS_CLASS={Mapped:'s-mapped',Parsed:'s-parsed',Pending:'s-pending',Validated:'s-validated'};
+var qids=[],rowCount=0,demoRunning=false;
+
+/* ── BUILD TABLE ── */
+(function(){
+  var d=new Date(),s=String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();
+  document.getElementById('fIdate').textContent=s;
+  document.getElementById('fDdate').textContent=s;
+  document.getElementById('fRdate').textContent=s;
+  var tb=document.getElementById('payTbody');
+  ROWS.forEach(function(r){
+    var tr=document.createElement('tr');
+    var dueHtml=r.due?('<span class="'+(r.due.indexOf('Jun')>-1||r.due.indexOf('May')>-1?'due-red':'')+'">'+r.due+'</span>'):'';
+    tr.innerHTML='<td><span class="inv-num">'+r.inv+'</span></td><td>'+r.vendor+'</td><td>'+r.amt+'</td><td><span class="status-pill '+STATUS_CLASS[r.status]+'"><span class="s-dot"></span>'+r.status+'</span></td><td>'+r.poc+'</td><td><span class="age-badge">'+r.age+'</span></td><td>'+dueHtml+'</td>';
+    tb.appendChild(tr);
+  });
+})();
+
+/* ── SCREEN NAV ── */
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});
+  document.getElementById(id).classList.add('active');
+}
+
+/* ── MODALS ── */
+function openAddNew(){document.getElementById('ovAddNew').classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function openUploadModal(){closeModal('ovAddNew');document.getElementById('ovUpload').classList.add('open');}
+function openCCScreen(){closeModal('ovAddNew');showScreen('screenCC');}
+
+/* Click outside to close modals */
+['ovAddNew','ovUpload'].forEach(function(id){
+  document.getElementById(id).addEventListener('click',function(e){if(e.target===this)closeModal(id);});
+});
+
+/* ── UPLOAD MODAL ── */
+function handleFiles(input){
+  var n=input.files.length;
+  document.getElementById('uploadZoneText').textContent=n+' file'+(n!==1?'s':'')+' selected';
+  document.getElementById('uploadMeta').textContent=n+' file'+(n!==1?'s':'')+' selected';
+}
+function handleUpload(){closeModal('ovUpload');showToast('Invoices uploaded. AP Bot is processing them in the background.');}
+
+/* ── VENDOR DD ── */
+function filterVendors(){
+  var q=document.getElementById('fVendor').value.toLowerCase();
+  var dd=document.getElementById('vendorDD');
+  var list=q?VENDORS.filter(function(v){return v.name.toLowerCase().indexOf(q)>-1||v.code.toLowerCase().indexOf(q)>-1;}):VENDORS;
+  if(!list.length){dd.innerHTML='<div class="dopt-empty">No vendors found</div>';}
+  else{dd.innerHTML=list.map(function(v){var n=v.name.replace(/'/g,"\\'");var c=v.code.replace(/'/g,"\\'");var t=v.type.replace(/'/g,"\\'");return '<div class="dopt" onmousedown="pickVendor(\''+n+'\',\''+c+'\',\''+t+'\')"><div class="dopt-name">'+v.name+'</div><div class="dopt-sub">'+v.code+' &bull; '+v.type+'</div></div>';}).join('');}
+  dd.classList.add('open');
+}
+function pickVendor(name,code,type){
+  document.getElementById('fVendor').value=name;
+  document.getElementById('ccHdrVendor').textContent=name;
+  document.getElementById('vendorDD').classList.remove('open');
+  var sel=document.getElementById('fBilling');
+  for(var i=0;i<sel.options.length;i++){if(sel.options[i].text===name){sel.selectedIndex=i;updateMatched();break;}}
+}
+function closeVendorDD(){setTimeout(function(){document.getElementById('vendorDD').classList.remove('open');},150);}
+function updateMatched(){var v=document.getElementById('fBilling').value;document.getElementById('fMatched').textContent=ENTITY_MAP[v]||'Auto-fetched on selection';}
+
+/* ── CURRENCY ── */
+function syncCurr(){var c=document.getElementById('fCurr').value;document.querySelectorAll('.li-curr').forEach(function(el){el.textContent=c;});updateTotal();}
+
+/* ── LINE ITEMS ── */
+function addRow(desc,qty,rate,qid){
+  rowCount++;
+  var id='r'+rowCount;
+  var curr=document.getElementById('fCurr').value;
+  var tr=document.createElement('tr');tr.id=id;
+  var td1=document.createElement('td');td1.style.cssText='font-size:11px;color:var(--t3);text-align:center;vertical-align:middle';td1.textContent=rowCount;
+  var tdD=document.createElement('td');var inD=document.createElement('input');inD.className='finput li-desc';inD.placeholder='e.g. Detention Fee';inD.style.cssText='font-size:11px;padding:5px 7px';inD.value=desc||'';inD.oninput=function(){recalcRow(id);};tdD.appendChild(inD);
+  var tdQ=document.createElement('td');var inQ=document.createElement('input');inQ.className='finput li-qty';inQ.type='number';inQ.placeholder='1';inQ.style.cssText='font-size:11px;padding:5px 4px;text-align:center';inQ.value=qty||'';inQ.oninput=function(){recalcRow(id);};tdQ.appendChild(inQ);
+  var tdR=document.createElement('td');var inR=document.createElement('input');inR.className='finput li-rate';inR.type='number';inR.placeholder='0.00';inR.style.cssText='font-size:11px;padding:5px 7px';inR.value=rate||'';inR.oninput=function(){recalcRow(id);};tdR.appendChild(inR);
+  var tdA=document.createElement('td');var dA=document.createElement('div');dA.className='li-amt';dA.id='amt'+id;dA.textContent='0.00';tdA.appendChild(dA);
+  var tdC=document.createElement('td');var dC=document.createElement('div');dC.className='li-curr';dC.textContent=curr;tdC.appendChild(dC);
+  var tdQid=document.createElement('td');tdQid.style.position='relative';
+  var inQid=document.createElement('input');inQid.className='finput li-qid';inQid.placeholder='QID';inQid.style.cssText='font-size:11px;padding:5px 7px';inQid.value=qid||'';inQid.autocomplete='off';
+  var sugg=document.createElement('div');sugg.className='liqsugg';
+  inQid.oninput=function(){filterLiQid(inQid,sugg);};
+  inQid.onblur=function(){setTimeout(function(){sugg.classList.remove('open');},160);};
+  tdQid.appendChild(inQid);tdQid.appendChild(sugg);
+  var tdDel=document.createElement('td');var btnDel=document.createElement('button');btnDel.className='li-del';btnDel.title='Remove';btnDel.innerHTML='<svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>';btnDel.onclick=function(){removeRow(id);};tdDel.appendChild(btnDel);
+  tr.appendChild(td1);tr.appendChild(tdD);tr.appendChild(tdQ);tr.appendChild(tdR);tr.appendChild(tdA);tr.appendChild(tdC);tr.appendChild(tdQid);tr.appendChild(tdDel);
+  document.getElementById('liBody').appendChild(tr);
+  if(desc&&qty&&rate)recalcRow(id);
+  updateTotal();
+}
+function filterLiQid(input,sugg){
+  var q=input.value.toLowerCase().trim();
+  if(q.length<2){sugg.classList.remove('open');return;}
+  var f=QIDS.filter(function(o){return o.id.toLowerCase().indexOf(q)>-1||o.sub.toLowerCase().indexOf(q)>-1;});
+  if(!f.length){sugg.classList.remove('open');return;}
+  sugg.innerHTML='';
+  f.forEach(function(o){var d=document.createElement('div');d.className='liqopt';d.innerHTML='<div class="liqopt-id">'+o.id+'</div><div class="liqopt-sub">'+o.sub+'</div>';d.onmousedown=function(e){e.preventDefault();input.value=o.id;sugg.classList.remove('open');addQid(o.id);};sugg.appendChild(d);});
+  sugg.classList.add('open');
+}
+function removeRow(id){var el=document.getElementById(id);if(el)el.remove();updateTotal();}
+function recalcRow(id){var row=document.getElementById(id);if(!row)return;var q=parseFloat(row.querySelector('.li-qty').value)||0;var r=parseFloat(row.querySelector('.li-rate').value)||0;document.getElementById('amt'+id).textContent=(q*r).toFixed(2);updateTotal();}
+function updateTotal(){var rows=document.querySelectorAll('#liBody tr');var t=0;rows.forEach(function(row){var el=row.querySelector('.li-amt');if(el)t+=parseFloat(el.textContent)||0;});var c=document.getElementById('fCurr').value;document.getElementById('liTotal').textContent=rows.length?'Total: '+c+' '+t.toFixed(2):'';}
+
+/* ── QID SECTION ── */
+function showQSugg(){var q=document.getElementById('qInput').value.toLowerCase().trim();var sugg=document.getElementById('qSugg');if(!q||q.length<2){sugg.classList.remove('open');return;}var f=QIDS.filter(function(o){return (o.id.toLowerCase().indexOf(q)>-1||o.sub.toLowerCase().indexOf(q)>-1)&&qids.indexOf(o.id)===-1;});if(!f.length){sugg.classList.remove('open');return;}sugg.innerHTML=f.map(function(o){return '<div class="qopt" onmousedown="pickQid(\''+o.id+'\')"><div class="qopt-id">'+o.id+'</div><div class="qopt-sub">'+o.sub+'</div></div>';}).join('');sugg.classList.add('open');}
+function closeQSugg(){setTimeout(function(){document.getElementById('qSugg').classList.remove('open');},150);}
+function pickQid(q){addQid(q);document.getElementById('qInput').value='';document.getElementById('qSugg').classList.remove('open');}
+function addQid(q){if(qids.indexOf(q)>-1)return;qids.push(q);renderQids();}
+function removeQid(q){qids=qids.filter(function(x){return x!==q;});renderQids();}
+function renderQids(){document.getElementById('qtags').innerHTML=qids.map(function(q){return '<span class="qtag">'+q+'<span class="qtag-x" onclick="removeQid(\''+q+'\')">&#215;</span></span>';}).join('');}
+function setQTab(el){document.querySelectorAll('.qtab').forEach(function(t){t.classList.remove('on');});el.classList.add('on');}
+
+/* ── ZOHO + ACTIONS ── */
+function handleZoho(){var btn=document.getElementById('zohoBtn');var ico=document.getElementById('zohoIco');var lbl=document.getElementById('zohoLbl');btn.style.pointerEvents='none';ico.style.animation='spin 1s linear infinite';lbl.textContent='Syncing...';setTimeout(function(){ico.style.animation='';lbl.textContent='Zoho Bill';btn.style.pointerEvents='';showToast('Zoho Bill synced.');},1600);}
+function handleRetrig(){showToast('AP retriggered.');}
+function handleSave(){showToast('Invoice saved.');}
+function handleContinue(){goToValidate();}
+/* ── TOAST ── */
+function showToast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2600);}
+
+/* ── DEMO ── */
+function typeInto(el,text,cb,speed){speed=speed||48;el.classList.add('fflash');el.focus();var i=0;function step(){if(i<=text.length){el.value=text.slice(0,i);el.dispatchEvent(new Event('input'));i++;setTimeout(step,speed);}else{el.blur();if(cb)setTimeout(cb,260);}}step();}
+
+function runDemo(){
+  if(demoRunning)return;
+  if(document.getElementById('screenPayment').classList.contains('active')){return;}
+  if(document.getElementById('screenValidate').classList.contains('active')){runValidateDemo();return;}
+  if(document.getElementById('screenCC').classList.contains('active')){runCCDemo();return;}
+  demoRunning=true;
+  var btn=document.getElementById('demoBtn');
+  btn.innerHTML='<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="10" y1="15" x2="10" y2="9"/><line x1="14" y1="15" x2="14" y2="9"/></svg> Running...';
+  setTimeout(function(){openAddNew();setTimeout(function(){openCCScreen();setTimeout(function(){runCCDemo();},400);},1200);},500);
+}
+
+function runCCDemo(){
+  demoRunning=true;
+  var btn=document.getElementById('demoBtn');
+  btn.innerHTML='<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="10" y1="15" x2="10" y2="9"/><line x1="14" y1="15" x2="14" y2="9"/></svg> Running...';
+  document.getElementById('fVendor').value='';document.getElementById('fAmount').value='';
+  document.getElementById('fBilling').selectedIndex=0;document.getElementById('fMatched').textContent='Auto-fetched on selection';
+  document.getElementById('ccHdrVendor').textContent='';document.getElementById('qtags').innerHTML='';
+  document.getElementById('qInput').value='';document.getElementById('liBody').innerHTML='';
+  document.getElementById('liTotal').textContent='';document.getElementById('vendorDD').classList.remove('open');
+  qids=[];rowCount=0;
+  setTimeout(function(){
+    typeInto(document.getElementById('fVendor'),'Hind',function(){
+      filterVendors();
+      setTimeout(function(){
+        pickVendor('Hind Terminals Pvt Ltd','HIND-001','Terminal');
+        setTimeout(function(){
+          typeInto(document.getElementById('fAmount'),'2400',function(){
+            setTimeout(function(){
+              addRow();
+              var row=document.getElementById('r1');
+              typeInto(row.querySelector('.li-desc'),'Detention Fee',function(){
+                typeInto(row.querySelector('.li-qty'),'1',function(){
+                  typeInto(row.querySelector('.li-rate'),'2400',function(){
+                    recalcRow('r1');
+                    setTimeout(function(){
+                      typeInto(document.getElementById('qInput'),'XQFCL',function(){
+                        showQSugg();
+                        setTimeout(function(){
+                          pickQid('XQFCL062621269');
+                          demoRunning=false;
+                          btn.innerHTML='<svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg> Replay demo';
+                          showToast('Demo complete. All fields are editable.');
+                        },800);
+                      },50);
+                    },400);
+                  },60);
+                },60);
+              },48);
+            },350);
+          },55);
+        },350);
+      },600);
+    },55);
+  },400);
+}
+
+addRow();
+
+/* ── VALIDATE SCREEN DATA ── */
+var VCHARGES=[
+  {n:'Detention Fee',badge:'ACC',vendor:'Hind Terminals',leg:'Destination',cost:2400,val:0,hl:true},
+  {n:'Ocean Freight',badge:'RUN',vendor:'Xhipment',leg:'Port to Port',cost:2060,val:2060,hl:false},
+  {n:'Destination Delivery Charges',badge:'RUN',vendor:'N/G',leg:'Destination',cost:2540,val:2540,hl:false},
+  {n:'Layover Fee',badge:'ACC',vendor:'Shootin Logistics',leg:'Destination',cost:300,val:250,hl:false},
+  {n:'Advanced Manifest System',badge:'RUN',vendor:'Xhipment',leg:'Origin',cost:64,val:0,hl:false},
+  {n:'B/L Fees',badge:'RUN',vendor:'Xhipment',leg:'Origin',cost:50,val:0,hl:false},
+  {n:'Chassis Charge',badge:'ACC',vendor:'Shootin Logistics',leg:'Destination',cost:45,val:0,hl:false},
+  {n:'Custom Duty',badge:'RUN',vendor:'',leg:'Destination',cost:3838.37,val:0,hl:false},
+  {n:'Destination Customs Clearance',badge:'RUN',vendor:'Regal Customs',leg:'Destination',cost:65,val:0,hl:false},
+  {n:'Origin Customs Clearance',badge:'RUN',vendor:'P.D.J Logistics',leg:'Origin',cost:29,val:0,hl:false},
+];
+var vAlloc=0;var vTotal=2400;
+
+function fmt(n){return 'USD '+Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
+
+function buildVTable(){
+  var tb=document.getElementById('vcogsTbody');tb.innerHTML='';
+  VCHARGES.forEach(function(c,i){
+    var tr=document.createElement('tr');
+    if(c.hl){tr.className='vhl';tr.id='vhlrow';}
+    tr.id=(c.hl?'vhlrow':'vcrow'+i);
+    var rem=c.cost-c.val;
+    var remHtml=rem>0?'<span class="vrem">'+fmt(rem)+'</span>':'<span style="color:var(--t3)">&#8212;</span>';
+    var allocHtml=c.hl&&vAlloc>0?'<span style="color:var(--ok-t);font-weight:600">'+fmt(vAlloc)+'</span>':'&#8212;';
+    var valHtml=c.val>0?fmt(c.val):'&#8212;';
+    tr.innerHTML='<td><span class="vcname">'+c.n+'</span><span class="vbadge v'+c.badge.toLowerCase()+'">'+c.badge+'</span></td>'+
+      '<td style="color:var(--t2);font-size:10px">'+c.vendor+'</td>'+
+      '<td style="color:var(--t2);font-size:10px">'+c.leg+'</td>'+
+      '<td style="font-weight:500">'+fmt(c.cost)+'</td>'+
+      '<td>'+valHtml+'</td>'+
+      '<td>'+remHtml+'</td>'+
+      '<td>'+allocHtml+'</td>'+
+      '<td><button class="valloc-btn" onclick="valAllocRow('+i+')" title="Allocate">+</button></td>';
+    document.getElementById('vcogsTbody').appendChild(tr);
+  });
+}
+
+function valAllocRow(i){
+  if(i!==0)return;
+  vAlloc=vTotal;buildVTable();updateVProg(vTotal);
+  showToast('USD 2,400.00 allocated to Detention Fee.');
+}
+
+function updateVProg(amt){
+  var pct=Math.min(100,Math.round(amt/vTotal*100));
+  document.getElementById('vpbar').style.width=pct+'%';
+  document.getElementById('vpcAlloc').textContent=fmt(amt);
+  var rem=vTotal-amt;
+  document.getElementById('vpcRem').textContent=rem>0?fmt(rem):'USD 0.00';
+  if(pct>=100){
+    document.getElementById('vpbar').classList.add('full');
+    document.getElementById('vpc').className='vpc comp';
+    document.getElementById('vpcIco').innerHTML='<polyline points="20 6 9 17 4 12"/>';
+    document.getElementById('vpcIco').style.stroke='var(--ok-t)';
+    document.getElementById('vpstat').className='vpstat comp';document.getElementById('vpstat').textContent='Complete';
+    document.getElementById('vplbl2').textContent='Ready for approval';
+    document.getElementById('vwarn').classList.add('hide');
+    document.getElementById('vbtnApprove').classList.add('on');
+  }
+}
+
+function resetVProg(){
+  vAlloc=0;
+  document.getElementById('vpbar').style.width='0%';document.getElementById('vpbar').classList.remove('full');
+  document.getElementById('vpc').className='vpc inc';
+  document.getElementById('vpcIco').innerHTML='<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>';
+  document.getElementById('vpcIco').style.stroke='var(--orange)';
+  document.getElementById('vpstat').className='vpstat inp';document.getElementById('vpstat').textContent='In Progress';
+  document.getElementById('vplbl2').textContent='Complete remaining amount';
+  document.getElementById('vwarn').classList.remove('hide');
+  document.getElementById('vbtnApprove').classList.remove('on','done');
+  document.getElementById('vbtnApprove').textContent='Send For Approval';
+  document.getElementById('vbtnApprove').style.pointerEvents='';
+  document.getElementById('vpcAlloc').textContent='USD 0.00';
+  document.getElementById('vpcRem').textContent='USD 2,400.00';
+}
+
+function handleVApprove(){
+  var btn=document.getElementById('vbtnApprove');
+  btn.textContent='Sending...';btn.style.pointerEvents='none';
+  setTimeout(function(){
+    btn.textContent='Sent for Approval';btn.classList.remove('on');btn.classList.add('done');
+    showToast('Invoice sent for approval. Rachit notified via Gchat.');
+    setTimeout(function(){showPayScreen();},2000);
+  },1200);
+}
+
+function handleVZoho(){
+  var btn=document.getElementById('vzBtn'),ico=document.getElementById('vzIco'),lbl=document.getElementById('vzLbl');
+  btn.style.pointerEvents='none';ico.style.animation='spin 1s linear infinite';lbl.textContent='Syncing...';
+  setTimeout(function(){ico.style.animation='';lbl.textContent='Zoho Bill';btn.style.pointerEvents='';showToast('Zoho Bill updated.');},1600);
+}
+
+/* ── PAYMENT SCREEN ── */
+function showPayScreen(){
+  document.getElementById('screenValidate').classList.remove('active');
+  document.getElementById('screenPayment').classList.add('active');
+  var d=new Date();
+  document.getElementById('pDueDate').textContent=String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();
+  document.getElementById('payNavBadge').textContent='Approved';
+  /* Simulate Zoho webhook arriving after 2 seconds */
+  var wb=document.getElementById('webhookBanner');
+  wb.classList.add('show');
+  setTimeout(function(){simulateWebhook();},2200);
+}
+
+function simulateWebhook(){
+  var wb=document.getElementById('webhookBanner');
+  var txt=document.getElementById('webhookTxt');
+  /* Flash each field as it fills */
+  function fillField(el,val,cb){
+    el.classList.add('webhook');
+    var i=0;
+    function step(){if(i<=val.length){el.value=val.slice(0,i);i++;setTimeout(step,45);}else{if(cb)setTimeout(cb,200);}}
+    step();
+  }
+  fillField(document.getElementById('pUTR'),'016OVZZZB4ZD2UG',function(){
+    var d=new Date();
+    fillField(document.getElementById('pDate'),String(d.getMonth()+1).padStart(2,'0')+'/'+String(d.getDate()).padStart(2,'0')+'/'+d.getFullYear(),function(){
+      fillField(document.getElementById('pAmt'),'2400.00',function(){
+        wb.classList.add('done');
+        txt.textContent='Zoho Books webhook received. Payment details filled automatically.';
+        document.getElementById('paidBanner').classList.add('show');
+        document.getElementById('paidDot').classList.add('show');
+        document.getElementById('payNavBadge').textContent='Paid';
+        document.getElementById('payNavBadge').style.background='var(--ok-bg)';
+        document.getElementById('payNavBadge').style.color='var(--ok-t)';
+        var d2=new Date();
+        var ds=String(d2.getMonth()+1).padStart(2,'0')+'/'+String(d2.getDate()).padStart(2,'0')+'/'+d2.getFullYear();
+        document.getElementById('paidBannerTxt').textContent='Invoice Paid | UTR: 016OVZZZB4ZD2UG | Amount: USD 2,400.00 | Paid: '+ds;
+        showToast('Webhook received from Zoho Books. Invoice marked as Paid.');
+      });
+    });
+  });
+}
+
+function handlePSave(){showToast('Payment details saved.');}
+
+/* ── SCREEN TRANSITIONS ── */
+function goToValidate(){
+  if(!document.getElementById('fVendor').value){showToast('Please select a vendor.');return;}
+  if(!document.getElementById('fAmount').value){showToast('Please enter the invoice amount.');return;}
+  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});
+  document.getElementById('screenValidate').classList.add('active');
+  var d=new Date();var ds=String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();
+  document.getElementById('vdocDate').textContent=ds;
+  resetVProg();buildVTable();
+  demoRunning=false;
+  document.getElementById('demoBtn').innerHTML='<svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg> Watch validate demo';
+}
+
+/* ── EXTENDED DEMO ── */
+function runValidateDemo(){
+  if(demoRunning)return;
+  demoRunning=true;
+  var btn=document.getElementById('demoBtn');
+  btn.innerHTML='<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="10" y1="15" x2="10" y2="9"/><line x1="14" y1="15" x2="14" y2="9"/></svg> Running...';
+  resetVProg();buildVTable();
+  setTimeout(function(){
+    var row=document.getElementById('vhlrow');
+    if(row){row.scrollIntoView({behavior:'smooth',block:'center'});}
+    setTimeout(function(){
+      if(row){row.classList.add('vhl-anim');}
+      setTimeout(function(){
+        valAllocRow(0);
+        setTimeout(function(){
+          document.querySelector('.vprog').scrollIntoView({behavior:'smooth',block:'center'});
+          setTimeout(function(){
+            document.getElementById('vbtnApprove').classList.contains('on') && document.getElementById('vbtnApprove').click();
+            setTimeout(function(){
+              demoRunning=false;
+              btn.innerHTML='<svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg> Replay demo';
+            },3000);
+          },800);
+        },600);
+      },900);
+    },500);
+  },300);
+}
+
+</script>
+</body>
+</html>
